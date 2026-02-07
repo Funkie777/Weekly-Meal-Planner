@@ -4,7 +4,7 @@ A simple web-based meal planner that generates 4 weekday dinner menus with recip
 
 ## Features
 
-- **15 High-Protein Meals**: Each meal targets 820-880 calories with 42-48g protein per serving
+- **16 High-Protein Meals**: Each meal targets 820-880 calories with 42-48g protein per serving
 - **Random Weekly Generator**: Get 4 different meals each week from the full database
 - **Detailed Recipes**: Step-by-step cooking instructions for each meal
 - **Shopping List**: Auto-generated Waitrose shopping list organized by department
@@ -17,44 +17,48 @@ A simple web-based meal planner that generates 4 weekday dinner menus with recip
 ## How to Use
 
 1. **Open the file**: Simply open `meal-planner.html` or `index.html` in any web browser
-2. **Generate a week**: Click "Generate New Week" to get 4 random dinner meals
-3. **Select meals**: Use checkboxes to select which recipes you want
-4. **Download options**:
-   - **Download All Recipes**: Get all 4 recipes as separate PNG images
-   - **Download Selected**: Get only checked recipes as PNG images
-   - **Download Grocery List**: Get the shopping list as a PNG image
-5. **Upload to meal planner**: Save images to iPhone and upload to your preferred meal planning app
+1. **Generate a week**: Click “Generate New Week” to get 4 random dinner meals
+1. **Select meals**: Use checkboxes to select which recipes you want
+1. **Download options**:
+- **Download All Recipes**: Get all 4 recipes as separate PNG images
+- **Download Selected**: Get only checked recipes as PNG images
+- **Download Grocery List**: Get the shopping list as a PNG image
+1. **Upload to meal planner**: Save images to iPhone and upload to your preferred meal planning app
 
 ## Download Features
 
 Each downloaded recipe image includes:
+
 - Meal name and day number
 - Calories and protein per serving
 - Full ingredient list (serves 2)
 - Step-by-step cooking method
 
 Shopping list image includes:
+
 - All ingredients organized by department
 - Total number of meals
 - Average calories per meal
 
 ## Meals Included
 
-The planner includes 15 different meals:
+The planner includes 16 different meals:
+
 - Garlic Butter Chicken with Roast Potatoes
 - Beef Stir-Fry with Rice Noodles
-- Baked Salmon with Sweet Potato and Greens
+- Baked Salmon with Sweet Potato and Greens (only salmon dish)
 - Pork Chops with Mash and Green Beans
 - Turkey and Vegetable Stir-Fry
 - Chicken Fajita Bowl with Rice
 - Beef Mince with Couscous
-- Pan-Fried Sea Bass with New Potatoes
+- Lemon Herb Chicken with Roasted Vegetables
 - Lamb Kofta with Greek Salad
 - Prawn and Chorizo Paella
 - Thai Green Curry with Chicken
-- Mediterranean Baked Cod
+- Sirloin Steak with Chips and Peppercorn Sauce
 - Spicy Sausage Pasta
 - Teriyaki Salmon with Noodles
+- Chicken Tikka Masala with Rice
 - Chicken Shawarma with Flatbread
 
 ## Technical Details
@@ -69,9 +73,10 @@ The planner includes 15 different meals:
 ## Customization
 
 To add or modify meals, edit the `mealDatabase` array in the JavaScript section at the bottom of the HTML file. Each meal object requires:
+
 - `name`: Meal title
 - `calories`: Calorie count per serving (number)
-- `protein`: Protein in grams (string with "g")
+- `protein`: Protein in grams (string with “g”)
 - `ingredients`: Array of ingredient objects with `item`, `qty`, and `category`
 - `method`: Array of cooking steps
 
@@ -82,4 +87,3 @@ Works best in modern browsers (Chrome, Safari, Firefox, Edge). Image download fe
 ## License
 
 Free to use and modify for personal use.
-

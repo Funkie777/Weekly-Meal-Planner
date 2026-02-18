@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Meal Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background: #229954;
+        }
+        
+        .meal-card {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: #fafafa;
+        }
+        
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .meal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .meal-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .meal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        
+        
+        .meal-content {
+            margin-top: 15px;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: #34495e;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .ingredients-list, .method-list {
+            list-style-position: inside;
+            color: #555;
+        }
+        
+        .ingredients-list li {
+            margin-bottom: 4px;
+            list-style-type: none;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .ingredients-list li:before {
+            content: "•";
+            position: absolute;
+            left: 5px;
+        }
+        
+        .method-list li {
+            margin-bottom: 8px;
+            padding-left: 5px;
+        }
+        
+        .shopping-list {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fff9e6;
+            border: 2px solid #f39c12;
+            border-radius: 6px;
+        }
+        
+        .shopping-list h2 {
+            color: #d68910;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        .shopping-category {
+            margin-bottom: 15px;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 6px;
+            font-size: 15px;
+        }
+        
+        .shopping-items {
+            list-style: none;
+            padding-left: 15px;
+        }
+        
+        .shopping-items li {
+            margin-bottom: 3px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .print-btn {
+            background: #3498db;
+            margin-left: 10px;
+        }
+        
+        .print-btn:hover {
+            background: #2980b9;
+        }
+
+
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            
+            .controls {
+                display: none;
+            }
+            
+            .meal-card {
+                page-break-inside: avoid;
+            }
+        }
+    
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        
+        .meal-card.hidden {
+            display: none;
+        }
+        
+        .macros {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .macro-badge {
+            background: #27ae60;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weekly Dinner Planner</h1>
+        <p class="subtitle">16 high-protein meals | All macros per serving (serves 2) | MFP Quick Add Ready</p>
+        
+                
+        <input type="text" class="search-box" id="searchBox" placeholder="Search meals by name (e.g., chicken, salmon, pasta)...">
+        
+        <div class="controls">
+            <button onclick="generateWeek()">Generate New Week</button>
+            <button onclick="showAll()">Show All 16 Meals</button>
+            <button onclick="window.print()">Print</button>
+            <button class="download-btn" onclick="downloadSelected()">Download Selected</button>
+            <button class="download-btn" onclick="downloadGroceryList()">Download Grocery List</button>
+            <button class="print-btn" onclick="window.print()">Print Menu</button>
+        </div>
+        
+        <div id="meals"></div>
+        <div id="shopping"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        let currentMeals = [];
+
+        const mealDatabase = [
+            {
+                name: "Garlic Butter Chicken with Roast Potatoes",
+                calories: 850,
+                protein: 45,
+                carbs: 62,
+                fat: 28,
+                ingredients: [
+                    { item: "Chicken breasts", qty: "2 large (400g)", category: "Meat & Fish" },
+                    { item: "Potatoes", qty: "300g", category: "Vegetables" },
+                    { item: "Green beans", qty: "150g", category: "Vegetables" },
+                    { item: "Butter", qty: "30g", category: "Dairy" },
+                    { item: "Garlic cloves", qty: "4", category: "Vegetables" },
+                    { item: "Olive oil", qty: "1 tbsp", category: "Cooking" },
+                    { item: "Fresh thyme", qty: "Few sprigs", category: "Fresh Herbs" },
+                    { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
+                ],
+                method: [
+                    "Preheat oven to 200°C. Cut potatoes into chunks, toss with 1 tbsp olive oil, salt and pepper.",
+                    "Spread potatoes on baking tray and roast for 35-40 minutes until golden and crispy.",
+                    "Season chicken breasts with salt and pepper. Heat a pan over medium-high heat.",
+                    "Cook chicken for 6-7 minutes each side until golden and cooked through. Rest for 5 minutes.",
+                    "In same pan, melt butter with crushed garlic and thyme. Cook for 1 minute.",
+                    "Steam or boil green beans for 4-5 minutes until tender.",
+                    "Slice chicken, drizzle with garlic butter, and serve with potatoes and beans."
+                ]
+            },
+            {
+                name: "Beef Stir-Fry with Rice Noodles",
+                calories: 820,
+                protein: 42,
+                carbs: 88,
+                fat: 25,
+                ingredients: [
+                    { item: "Beef sirloin", qty: "300g, sliced thin", category: "Meat & Fish" },
+                    { item: "Rice noodles", qty: "200g", category: "Cooking" },
+                    { item: "Bell peppers", qty: "2 (mixed colors)", category: "Vegetables" },
+                    { item: "Onion", qty: "1 large", category: "Vegetables" },
+                    { item: "Soy sauce", qty: "3 tbsp", category: "Cooking" },
+                    { item: "Garlic cloves", qty: "3", category: "Vegetables" },
+                    { item: "Fresh ginger", qty: "2cm piece", category: "Vegetables" },
+                    { item: "Vegetable oil", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Spring onions", qty: "2", category: "Vegetables" }
+                ],
+                method: [
+                    "Cook rice noodles according to packet instructions. Drain and set aside.",
+                    "Slice beef thinly against the grain. Slice peppers and onion into strips.",
+                    "Heat 1 tbsp oil in a wok or large pan over high heat. Stir-fry beef for 2-3 minutes until browned. Remove and set aside.",
+                    "Add remaining oil. Stir-fry peppers and onion for 3-4 minutes until softened.",
+                    "Add minced garlic and ginger, cook for 30 seconds until fragrant.",
+                    "Return beef to pan, add noodles and soy sauce. Toss everything together for 2 minutes.",
+                    "Garnish with sliced spring onions and serve immediately."
+                ]
+            },
+            {
+                name: "Baked Salmon with Sweet Potato and Greens",
+                calories: 880,
+                protein: 44,
+                carbs: 68,
+                fat: 35,
+                ingredients: [
+                    { item: "Salmon fillets", qty: "2 (360g total)", category: "Meat & Fish" },
+                    { item: "Sweet potatoes", qty: "300g", category: "Vegetables" },
+                    { item: "Tenderstem broccoli", qty: "150g", category: "Vegetables" },
+                    { item: "Lemon", qty: "1", category: "Vegetables" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Garlic cloves", qty: "2", category: "Vegetables" },
+                    { item: "Fresh dill", qty: "Small bunch", category: "Fresh Herbs" },
+                    { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
+                ],
+                method: [
+                    "Preheat oven to 200°C. Peel and cube sweet potatoes.",
+                    "Toss sweet potato with 1 tbsp olive oil, salt and pepper. Roast for 25-30 minutes until tender.",
+                    "Place salmon on baking paper. Drizzle with remaining oil, season, add lemon slices and dill.",
+                    "Bake salmon for 12-15 minutes until cooked through.",
+                    "Steam broccoli for 4-5 minutes until tender. Toss with crushed garlic.",
+                    "Serve salmon with sweet potato and broccoli, with extra lemon wedges."
+                ]
+            },
+            {
+                name: "Pork Chops with Mash and Green Beans",
+                calories: 870,
+                protein: 46,
+                carbs: 75,
+                fat: 32,
+                ingredients: [
+                    { item: "Pork chops", qty: "2 (360g total)", category: "Meat & Fish" },
+                    { item: "Potatoes", qty: "400g", category: "Vegetables" },
+                    { item: "Green beans", qty: "150g", category: "Vegetables" },
+                    { item: "Butter", qty: "30g", category: "Dairy" },
+                    { item: "Milk", qty: "60ml", category: "Dairy" },
+                    { item: "Olive oil", qty: "1 tbsp", category: "Cooking" },
+                    { item: "Fresh sage", qty: "6 leaves", category: "Fresh Herbs" },
+                    { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
+                ],
+                method: [
+                    "Peel and cube potatoes. Boil in salted water for 15-20 minutes until soft.",
+                    "Drain potatoes and mash with butter and milk until smooth. Season to taste.",
+                    "Pat pork chops dry, season both sides with salt and pepper.",
+                    "Heat olive oil in a pan over medium-high heat. Cook pork chops 4-5 minutes each side until golden and cooked through.",
+                    "Add sage leaves to pan in last minute to crisp up.",
+                    "Steam green beans for 4-5 minutes until tender.",
+                    "Serve pork chops with mash and green beans, topped with crispy sage."
+                ]
+            },
+            {
+                name: "Turkey and Vegetable Stir-Fry with Egg Noodles",
+                calories: 840,
+                protein: 48,
+                carbs: 82,
+                fat: 22,
+                ingredients: [
+                    { item: "Turkey breast", qty: "300g, sliced", category: "Meat & Fish" },
+                    { item: "Egg noodles", qty: "200g", category: "Cooking" },
+                    { item: "Courgette", qty: "1 large", category: "Vegetables" },
+                    { item: "Carrots", qty: "2 medium", category: "Vegetables" },
+                    { item: "Mangetout", qty: "100g", category: "Vegetables" },
+                    { item: "Soy sauce", qty: "3 tbsp", category: "Cooking" },
+                    { item: "Sesame oil", qty: "1 tbsp", category: "Cooking" },
+                    { item: "Garlic cloves", qty: "3", category: "Vegetables" },
+                    { item: "Fresh ginger", qty: "2cm piece", category: "Vegetables" }
+                ],
+                method: [
+                    "Cook noodles according to packet instructions. Drain and toss with a little sesame oil.",
+                    "Slice turkey into thin strips. Cut courgette and carrots into matchsticks.",
+                    "Heat sesame oil in wok over high heat. Stir-fry turkey for 3-4 minutes until golden. Remove.",
+                    "Add vegetables to wok, stir-fry for 4-5 minutes until tender-crisp.",
+                    "Add minced garlic and ginger, cook for 30 seconds.",
+                    "Return turkey to wok, add noodles and soy sauce. Toss for 2 minutes until heated through.",
+                    "Serve immediately while hot."
+                ]
+            },
+            {
+                name: "Chicken Fajita Bowl with Rice",
+                calories: 860,
+                protein: 47,
+                carbs: 78,
+                fat: 28,
+                ingredients: [
+                    { item: "Chicken breasts", qty: "2 (400g)", category: "Meat & Fish" },
+                    { item: "White rice", qty: "150g uncooked", category: "Cooking" },
+                    { item: "Bell peppers", qty: "2 (mixed colors)", category: "Vegetables" },
+                    { item: "Red onion", qty: "1 large", category: "Vegetables" },
+                    { item: "Lime", qty: "1", category: "Vegetables" },
+                    { item: "Fajita seasoning", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Sour cream", qty: "60g", category: "Dairy" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Fresh coriander", qty: "Small bunch", category: "Fresh Herbs" }
+                ],
+                method: [
+                    "Cook rice according to packet instructions.",
+                    "Slice chicken into strips, coat with fajita seasoning.",
+                    "Slice peppers and onion into strips.",
+                    "Heat 1 tbsp oil in large pan, cook chicken for 5-6 minutes until golden and cooked through. Remove.",
+                    "Add remaining oil, cook peppers and onion for 5 minutes until softened.",
+                    "Return chicken to pan, squeeze over lime juice, toss together.",
+                    "Serve over rice, topped with sour cream and fresh coriander."
+                ]
+            },
+            {
+                name: "Beef Mince with Couscous and Roasted Vegetables",
+                calories: 830,
+                protein: 44,
+                carbs: 72,
+                fat: 30,
+                ingredients: [
+                    { item: "Beef mince (5% fat)", qty: "300g", category: "Meat & Fish" },
+                    { item: "Couscous", qty: "150g", category: "Cooking" },
+                    { item: "Aubergine", qty: "1 medium", category: "Vegetables" },
+                    { item: "Courgette", qty: "1 large", category: "Vegetables" },
+                    { item: "Cherry tomatoes", qty: "200g", category: "Vegetables" },
+                    { item: "Onion", qty: "1 large", category: "Vegetables" },
+                    { item: "Garlic cloves", qty: "3", category: "Vegetables" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Cumin", qty: "1 tsp", category: "Cooking" },
+                    { item: "Fresh parsley", qty: "Small bunch", category: "Fresh Herbs" }
+                ],
+                method: [
+                    "Preheat oven to 200°C. Chop aubergine and courgette into chunks.",
+                    "Toss vegetables and cherry tomatoes with 1 tbsp oil, salt and cumin. Roast for 25-30 minutes.",
+                    "Meanwhile, dice onion and cook in pan with remaining oil until soft.",
+                    "Add beef mince, cook for 8-10 minutes until browned, breaking up with spoon.",
+                    "Add crushed garlic, cook for 1 minute. Season well.",
+                    "Prepare couscous according to packet instructions.",
+                    "Serve beef over couscous, topped with roasted vegetables and fresh parsley."
+                ]
+            },
+            {
+                name: "Lemon Herb Chicken with Roasted Vegetables and Quinoa",
+                calories: 850,
+                protein: "46g",
+                ingredients: [
+                    { item: "Chicken breasts", qty: "2 (400g)", category: "Meat & Fish" },
+                    { item: "Quinoa", qty: "150g uncooked", category: "Cooking" },
+                    { item: "Courgette", qty: "1 large", category: "Vegetables" },
+                    { item: "Red pepper", qty: "1", category: "Vegetables" },
+                    { item: "Red onion", qty: "1", category: "Vegetables" },
+                    { item: "Cherry tomatoes", qty: "150g", category: "Vegetables" },
+                    { item: "Lemon", qty: "1", category: "Vegetables" },
+                    { item: "Garlic cloves", qty: "3", category: "Vegetables" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Fresh rosemary", qty: "Few sprigs", category: "Fresh Herbs" },
+                    { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
+                ],
+                method: [
+                    "Preheat oven to 200°C. Cook quinoa according to packet instructions.",
+                    "Chop courgette, pepper, and onion into chunks. Toss with 1 tbsp oil, salt and pepper.",
+                    "Spread vegetables on baking tray, add cherry tomatoes and sliced garlic. Roast for 25 minutes.",
+                    "Season chicken with salt, pepper, lemon zest, and chopped rosemary.",
+                    "Heat remaining oil in pan, cook chicken for 6-7 minutes each side until golden and cooked through.",
+                    "Squeeze lemon juice over chicken, let rest for 5 minutes then slice.",
+                    "Serve chicken over quinoa with roasted vegetables on the side."
+                ]
+            },
+
+            {
+                name: "Lamb Kofta with Couscous and Greek Salad",
+                calories: 870,
+                protein: 45,
+                carbs: 68,
+                fat: 38,
+                ingredients: [
+                    { item: "Lamb mince", qty: "300g", category: "Meat & Fish" },
+                    { item: "Couscous", qty: "150g", category: "Cooking" },
+                    { item: "Cucumber", qty: "Half", category: "Vegetables" },
+                    { item: "Cherry tomatoes", qty: "150g", category: "Vegetables" },
+                    { item: "Red onion", qty: "Half", category: "Vegetables" },
+                    { item: "Feta cheese", qty: "60g", category: "Dairy" },
+                    { item: "Cumin", qty: "1 tsp", category: "Cooking" },
+                    { item: "Paprika", qty: "1 tsp", category: "Cooking" },
+                    { item: "Fresh mint", qty: "Small bunch", category: "Fresh Herbs" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" }
+                ],
+                method: [
+                    "Mix lamb mince with cumin, paprika, half the mint (chopped), salt and pepper.",
+                    "Form into 6 sausage shapes. Chill for 10 minutes if time allows.",
+                    "Prepare couscous according to packet instructions.",
+                    "Dice cucumber, tomatoes, and red onion. Mix with remaining mint and 1 tbsp olive oil.",
+                    "Heat remaining oil in pan, cook koftas for 8-10 minutes, turning until browned all over.",
+                    "Crumble feta over salad.",
+                    "Serve koftas with couscous and Greek salad."
+                ]
+            },
+            {
+                name: "Prawn and Chorizo Paella",
+                calories: 860,
+                protein: 44,
+                carbs: 82,
+                fat: 28,
+                ingredients: [
+                    { item: "Raw king prawns", qty: "250g", category: "Meat & Fish" },
+                    { item: "Chorizo", qty: "80g", category: "Meat & Fish" },
+                    { item: "Paella rice", qty: "150g", category: "Cooking" },
+                    { item: "Bell pepper", qty: "1 red", category: "Vegetables" },
+                    { item: "Onion", qty: "1 medium", category: "Vegetables" },
+                    { item: "Garlic cloves", qty: "3", category: "Vegetables" },
+                    { item: "Chicken stock", qty: "400ml", category: "Cooking" },
+                    { item: "Smoked paprika", qty: "1 tsp", category: "Cooking" },
+                    { item: "Saffron", qty: "Pinch (optional)", category: "Cooking" },
+                    { item: "Frozen peas", qty: "80g", category: "Vegetables" },
+                    { item: "Lemon", qty: "1", category: "Vegetables" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" }
+                ],
+                method: [
+                    "Dice onion and pepper. Slice chorizo. Crush garlic.",
+                    "Heat oil in large pan, fry chorizo for 2 minutes. Add onion and pepper, cook for 5 minutes.",
+                    "Add garlic and paprika, cook for 1 minute.",
+                    "Add rice, stir to coat. Pour in stock and saffron if using. Simmer for 15 minutes without stirring.",
+                    "Add prawns and peas on top, cover and cook for 5 minutes until prawns are pink.",
+                    "Remove from heat, let stand for 5 minutes.",
+                    "Serve with lemon wedges."
+                ]
+            },
+            {
+                name: "Thai Green Curry with Chicken and Jasmine Rice",
+                calories: 850,
+                protein: 43,
+                carbs: 75,
+                fat: 32,
+                ingredients: [
+                    { item: "Chicken breast", qty: "2 (400g)", category: "Meat & Fish" },
+                    { item: "Jasmine rice", qty: "150g uncooked", category: "Cooking" },
+                    { item: "Thai green curry paste", qty: "3 tbsp", category: "Cooking" },
+                    { item: "Coconut milk", qty: "400ml can", category: "Cooking" },
+                    { item: "Mangetout", qty: "100g", category: "Vegetables" },
+                    { item: "Baby corn", qty: "100g", category: "Vegetables" },
+                    { item: "Thai basil or regular basil", qty: "Small bunch", category: "Fresh Herbs" },
+                    { item: "Fish sauce", qty: "1 tbsp", category: "Cooking" },
+                    { item: "Lime", qty: "1", category: "Vegetables" },
+                    { item: "Vegetable oil", qty: "1 tbsp", category: "Cooking" }
+                ],
+                method: [
+                    "Cook jasmine rice according to packet instructions.",
+                    "Slice chicken into bite-sized pieces.",
+                    "Heat oil in large pan, fry curry paste for 1 minute until fragrant.",
+                    "Add chicken, cook for 5 minutes until sealed.",
+                    "Pour in coconut milk, add fish sauce. Simmer for 10 minutes.",
+                    "Add mangetout and baby corn, cook for 3 minutes.",
+                    "Stir in most of the basil, squeeze in lime juice.",
+                    "Serve over rice, garnished with remaining basil."
+                ]
+            },
+            {
+                name: "Sirloin Steak with Chips and Peppercorn Sauce",
+                calories: 870,
+                protein: "48g",
+                ingredients: [
+                    { item: "Sirloin steaks", qty: "2 (360g total)", category: "Meat & Fish" },
+                    { item: "Potatoes", qty: "400g", category: "Vegetables" },
+                    { item: "Green beans", qty: "150g", category: "Vegetables" },
+                    { item: "Double cream", qty: "60ml", category: "Dairy" },
+                    { item: "Beef stock", qty: "100ml", category: "Cooking" },
+                    { item: "Black peppercorns", qty: "1 tbsp", category: "Cooking" },
+                    { item: "Butter", qty: "20g", category: "Dairy" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Garlic cloves", qty: "2", category: "Vegetables" },
+                    { item: "Salt", qty: "To taste", category: "Cooking" }
+                ],
+                method: [
+                    "Preheat oven to 220°C. Cut potatoes into chips, toss with 1 tbsp oil and salt.",
+                    "Spread chips on baking tray, bake for 30-35 minutes, turning halfway until golden and crispy.",
+                    "Crush peppercorns roughly. Season steaks with salt and pressed peppercorns.",
+                    "Heat remaining oil in pan over high heat. Cook steaks 3-4 minutes each side for medium-rare. Rest for 5 minutes.",
+                    "In same pan, add crushed garlic, cook for 30 seconds. Add stock, simmer for 2 minutes.",
+                    "Add cream and butter, simmer for 2 minutes until thickened. Season to taste.",
+                    "Steam green beans for 4-5 minutes. Serve steak with chips, beans, and peppercorn sauce."
+                ]
+            },
+            {
+                name: "Spicy Sausage Pasta with Tomato Sauce",
+                calories: 880,
+                protein: 44,
+                carbs: 85,
+                fat: 35,
+                ingredients: [
+                    { item: "Italian sausages", qty: "4 (300g)", category: "Meat & Fish" },
+                    { item: "Penne pasta", qty: "200g", category: "Cooking" },
+                    { item: "Passata", qty: "400g", category: "Cooking" },
+                    { item: "Onion", qty: "1 large", category: "Vegetables" },
+                    { item: "Garlic cloves", qty: "3", category: "Vegetables" },
+                    { item: "Chilli flakes", qty: "1 tsp", category: "Cooking" },
+                    { item: "Parmesan", qty: "30g", category: "Dairy" },
+                    { item: "Fresh basil", qty: "Small bunch", category: "Fresh Herbs" },
+                    { item: "Olive oil", qty: "1 tbsp", category: "Cooking" }
+                ],
+                method: [
+                    "Cook pasta according to packet instructions. Reserve 100ml pasta water before draining.",
+                    "Squeeze sausage meat from casings. Dice onion.",
+                    "Heat oil in large pan, fry sausage meat for 5 minutes, breaking up with spoon.",
+                    "Add onion, cook for 5 minutes until soft. Add garlic and chilli flakes, cook 1 minute.",
+                    "Pour in passata, simmer for 10 minutes. Season well.",
+                    "Add drained pasta to sauce with a splash of pasta water. Toss together.",
+                    "Serve with grated parmesan and torn basil."
+                ]
+            },
+            {
+                name: "Teriyaki Salmon with Stir-Fried Vegetables and Noodles",
+                calories: 870,
+                protein: 45,
+                carbs: 82,
+                fat: 30,
+                ingredients: [
+                    { item: "Salmon fillets", qty: "2 (360g total)", category: "Meat & Fish" },
+                    { item: "Egg noodles", qty: "200g", category: "Cooking" },
+                    { item: "Teriyaki sauce", qty: "4 tbsp", category: "Cooking" },
+                    { item: "Broccoli", qty: "150g", category: "Vegetables" },
+                    { item: "Carrots", qty: "2 medium", category: "Vegetables" },
+                    { item: "Spring onions", qty: "4", category: "Vegetables" },
+                    { item: "Sesame seeds", qty: "1 tbsp", category: "Cooking" },
+                    { item: "Sesame oil", qty: "1 tbsp", category: "Cooking" },
+                    { item: "Vegetable oil", qty: "1 tbsp", category: "Cooking" }
+                ],
+                method: [
+                    "Cook noodles according to packet instructions. Drain and toss with sesame oil.",
+                    "Brush salmon with 2 tbsp teriyaki sauce.",
+                    "Heat vegetable oil in pan, cook salmon skin-side down for 4 minutes, flip and cook 3 minutes more.",
+                    "Meanwhile, cut broccoli into florets, slice carrots thin, chop spring onions.",
+                    "In wok, stir-fry vegetables for 4-5 minutes until tender-crisp.",
+                    "Add noodles and remaining teriyaki sauce, toss for 2 minutes.",
+                    "Serve noodles topped with salmon and sesame seeds."
+                ]
+            },
+            {
+                name: "Chicken Tikka Masala with Rice",
+                calories: 860,
+                protein: "47g",
+                ingredients: [
+                    { item: "Chicken breasts", qty: "2 (400g)", category: "Meat & Fish" },
+                    { item: "Basmati rice", qty: "150g uncooked", category: "Cooking" },
+                    { item: "Passata", qty: "300g", category: "Cooking" },
+                    { item: "Double cream", qty: "80ml", category: "Dairy" },
+                    { item: "Greek yogurt", qty: "60g", category: "Dairy" },
+                    { item: "Onion", qty: "1 large", category: "Vegetables" },
+                    { item: "Garlic cloves", qty: "3", category: "Vegetables" },
+                    { item: "Fresh ginger", qty: "2cm piece", category: "Vegetables" },
+                    { item: "Garam masala", qty: "2 tsp", category: "Cooking" },
+                    { item: "Paprika", qty: "1 tsp", category: "Cooking" },
+                    { item: "Cumin", qty: "1 tsp", category: "Cooking" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
+                    { item: "Fresh coriander", qty: "Small bunch", category: "Fresh Herbs" }
+                ],
+                method: [
+                    "Cook rice according to packet instructions.",
+                    "Cut chicken into bite-sized chunks. Mix with yogurt, half the garam masala, and half the paprika. Set aside for 10 minutes.",
+                    "Dice onion. Heat 1 tbsp oil in large pan, cook onion for 5 minutes until soft.",
+                    "Add minced garlic, ginger, remaining garam masala, paprika, and cumin. Cook for 1 minute.",
+                    "Add passata, simmer for 10 minutes. Stir in cream.",
+                    "In separate pan, heat remaining oil over high heat. Cook chicken for 6-7 minutes until golden and cooked through.",
+                    "Add chicken to sauce, simmer for 3-4 minutes. Garnish with fresh coriander. Serve over rice."
+                ]
+            },
+            {
+                name: "Chicken Shawarma with Flatbread and Salad",
+                calories: 860,
+                protein: 47,
+                carbs: 68,
+                fat: 32,
+                ingredients: [
+                    { item: "Chicken thighs", qty: "4 (400g)", category: "Meat & Fish" },
+                    { item: "Flatbreads or pitta", qty: "2 large", category: "Cooking" },
+                    { item: "Greek yogurt", qty: "100g", category: "Dairy" },
+                    { item: "Cucumber", qty: "Half", category: "Vegetables" },
+                    { item: "Tomatoes", qty: "2 medium", category: "Vegetables" },
+                    { item: "Lettuce", qty: "Quarter head", category: "Vegetables" },
+                    { item: "Cumin", qty: "1 tsp", category: "Cooking" },
+                    { item: "Paprika", qty: "1 tsp", category: "Cooking" },
+                    { item: "Turmeric", qty: "Half tsp", category: "Cooking" },
+                    { item: "Garlic cloves", qty: "2", category: "Vegetables" },
+                    { item: "Lemon", qty: "1", category: "Vegetables" },
+                    { item: "Olive oil", qty: "2 tbsp", category: "Cooking" }
+                ],
+                method: [
+                    "Mix cumin, paprika, turmeric, 1 crushed garlic clove, juice of half lemon, 1 tbsp oil, salt and pepper.",
+                    "Coat chicken thighs in spice mix. Marinate for 10 minutes if time allows.",
+                    "Heat remaining oil in pan, cook chicken for 6-7 minutes each side until cooked through. Slice.",
+                    "Mix yogurt with remaining crushed garlic and lemon juice for sauce.",
+                    "Dice cucumber and tomatoes, shred lettuce.",
+                    "Warm flatbreads in oven or pan.",
+                    "Serve chicken in flatbreads with salad and yogurt sauce."
+                ]
+            }
+        ];
+
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox) {
+                searchBox.addEventListener('input', function(e) {
+                    const query = e.target.value.toLowerCase();
+                    const cards = document.querySelectorAll('.meal-card');
+                    cards.forEach(card => {
+                        const title = card.querySelector('.meal-title').textContent.toLowerCase();
+                        card.classList.toggle('hidden', !title.includes(query));
+                    });
+                });
+            }
+        });
+
+        // Show all meals function
+        function showAll() {
+            document.getElementById('searchBox').value = '';
+            currentMeals = mealDatabase;
+            const mealsHtml = mealDatabase.map((meal, index) => `
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <div class="meal-title">${meal.name}</div>
+                        <div class="macros">
+                            <span class="macro-badge">${meal.calories} cal</span>
+                            <span class="macro-badge">${meal.protein}g protein</span>
+                            <span class="macro-badge">${meal.carbs}g carbs</span>
+                            <span class="macro-badge">${meal.fat}g fat</span>
+                        </div>
+                    </div>
+                    <div class="meal-content">
+                        <div class="section-title">Ingredients (serves 2):</div>
+                        <ul class="ingredients-list">
+                            ${meal.ingredients.map(ing => `<li>${ing.qty} ${ing.item}</li>`).join('')}
+                        </ul>
+                        <div class="section-title">Method:</div>
+                        <ol class="method-list">
+                            ${meal.method.map(step => `<li>${step}</li>`).join('')}
+                        </ol>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('meals').innerHTML = mealsHtml;
+            document.getElementById('shopping').innerHTML = '';
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function generateWeek() {
+            const selectedMeals = shuffleArray(mealDatabase).slice(0, 4);
+            currentMeals = selectedMeals;
+            
+            const mealsHtml = selectedMeals.map((meal, index) => `
+                <div class="meal-card" data-index="${index}">
+                    <div class="meal-header">
+                        <div class="meal-header-left">
+                            <input type="checkbox" class="meal-checkbox" id="meal-${index}" checked>
+                            <div class="meal-title">Day ${index + 1}: ${meal.name}</div>
+                        </div>
+                        <div class="macros">
+                            <span class="macro-badge">${meal.calories} cal</span>
+                            <span class="macro-badge">${meal.protein}g protein</span>
+                            <span class="macro-badge">${meal.carbs}g carbs</span>
+                            <span class="macro-badge">${meal.fat}g fat</span>
+                        </div>
+                    </div>
+                    <div class="meal-content">
+                        <div class="section-title">Ingredients (serves 2):</div>
+                        <ul class="ingredients-list">
+                            ${meal.ingredients.map(ing => `<li>${ing.qty} ${ing.item}</li>`).join('')}
+                        </ul>
+                        <div class="section-title">Method:</div>
+                        <ol class="method-list">
+                            ${meal.method.map(step => `<li>${step}</li>`).join('')}
+                        </ol>
+                    </div>
+                </div>
+            `).join('');
+
+            const shoppingList = generateShoppingList(selectedMeals);
+            
+            document.getElementById('meals').innerHTML = mealsHtml;
+            document.getElementById('shopping').innerHTML = shoppingList;
+        }
+
+        function generateShoppingOnly() {
+            if (currentMeals.length === 0) {
+                alert('Please generate a week first!');
+                return;
+            }
+            
+            document.getElementById('meals').innerHTML = '';
+            const shoppingList = generateShoppingList(currentMeals);
+            document.getElementById('shopping').innerHTML = shoppingList;
+            
+            window.scrollTo({
+                top: document.getElementById('shopping').offsetTop - 20,
+                behavior: 'smooth'
+            });
+        }
+
+        function generateShoppingList(meals) {
+            const categories = {
+                "Meat & Fish": [],
+                "Vegetables": [],
+                "Dairy": [],
+                "Fresh Herbs": [],
+                "Cooking": []
+            };
+
+            const itemMap = {};
+
+            meals.forEach(meal => {
+                meal.ingredients.forEach(ing => {
+                    const key = ing.item.toLowerCase();
+                    if (!itemMap[key]) {
+                        itemMap[key] = {
+                            item: ing.item,
+                            qty: ing.qty,
+                            category: ing.category
+                        };
+                    } else {
+                        itemMap[key].qty = itemMap[key].qty + ", " + ing.qty;
+                    }
+                });
+            });
+
+            Object.values(itemMap).forEach(ing => {
+                if (categories[ing.category]) {
+                    categories[ing.category].push(`${ing.item} (${ing.qty})`);
+                }
+            });
+
+            let html = '<div class="shopping-list"><h2>Waitrose Shopping List</h2>';
+            
+            Object.entries(categories).forEach(([category, items]) => {
+                if (items.length > 0) {
+                    html += `
+                        <div class="shopping-category">
+                            <div class="category-name">${category}</div>
+                            <ul class="shopping-items">
+                                ${items.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        generateWeek();
+
+        async function createRecipeImage(meal, dayNumber) {
+            const tempDiv = document.createElement('div');
+            tempDiv.style.width = '800px';
+            tempDiv.style.padding = '30px';
+            tempDiv.style.backgroundColor = '#ffffff';
+            tempDiv.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            
+            tempDiv.innerHTML = `
+                <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #27ae60;">
+                    <h2 style="color: #2c3e50; font-size: 24px; margin-bottom: 8px;">${dayNumber ? `Day ${dayNumber}: ` : ''}${meal.name}</h2>
+                    <div style="color: #27ae60; font-size: 16px; font-weight: 600;">
+                        ${meal.calories} calories | ${meal.protein} protein per serving
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #34495e; font-size: 18px; margin-bottom: 10px;">Ingredients (serves 2):</h3>
+                    <ul style="list-style: none; padding-left: 0; color: #555; line-height: 1.8;">
+                        ${meal.ingredients.map(ing => `<li style="margin-bottom: 4px;">• ${ing.qty} ${ing.item}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 style="color: #34495e; font-size: 18px; margin-bottom: 10px;">Method:</h3>
+                    <ol style="padding-left: 20px; color: #555; line-height: 1.8;">
+                        ${meal.method.map(step => `<li style="margin-bottom: 10px;">${step}</li>`).join('')}
+                    </ol>
+                </div>
+            `;
+            
+            document.body.appendChild(tempDiv);
+            
+            const canvas = await html2canvas(tempDiv, {
+                backgroundColor: '#ffffff',
+                scale: 2
+            });
+            
+            document.body.removeChild(tempDiv);
+            return canvas;
+        }
+
+        async function createGroceryListImage(meals) {
+            const categories = {
+                "Meat & Fish": [],
+                "Vegetables": [],
+                "Dairy": [],
+                "Fresh Herbs": [],
+                "Cooking": []
+            };
+
+            const itemMap = {};
+
+            meals.forEach(meal => {
+                meal.ingredients.forEach(ing => {
+                    const key = ing.item.toLowerCase();
+                    if (!itemMap[key]) {
+                        itemMap[key] = {
+                            item: ing.item,
+                            qty: ing.qty,
+                            category: ing.category
+                        };
+                    } else {
+                        itemMap[key].qty = itemMap[key].qty + ", " + ing.qty;
+                    }
+                });
+            });
+
+            Object.values(itemMap).forEach(ing => {
+                if (categories[ing.category]) {
+                    categories[ing.category].push(`${ing.item} (${ing.qty})`);
+                }
+            });
+
+            const tempDiv = document.createElement('div');
+            tempDiv.style.width = '800px';
+            tempDiv.style.padding = '30px';
+            tempDiv.style.backgroundColor = '#fff9e6';
+            tempDiv.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.border = '3px solid #f39c12';
+            tempDiv.style.borderRadius = '8px';
+            
+            let totalCalories = meals.reduce((sum, meal) => sum + meal.calories, 0);
+            let avgCalories = Math.round(totalCalories / meals.length);
+            
+            let html = `
+                <h2 style="color: #d68910; font-size: 26px; margin-bottom: 10px;">Waitrose Shopping List</h2>
+                <p style="color: #555; margin-bottom: 25px; font-size: 14px;">
+                    ${meals.length} meals | Average ${avgCalories} cal per meal
+                </p>
+            `;
+            
+            Object.entries(categories).forEach(([category, items]) => {
+                if (items.length > 0) {
+                    html += `
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="color: #34495e; font-size: 18px; margin-bottom: 8px; font-weight: 600;">${category}</h3>
+                            <ul style="list-style: none; padding-left: 15px; color: #555; line-height: 1.6;">
+                                ${items.map(item => `<li style="margin-bottom: 4px; font-size: 15px;">• ${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+            });
+            
+            tempDiv.innerHTML = html;
+            document.body.appendChild(tempDiv);
+            
+            const canvas = await html2canvas(tempDiv, {
+                backgroundColor: '#fff9e6',
+                scale: 2
+            });
+            
+            document.body.removeChild(tempDiv);
+            return canvas;
+        }
+
+        function downloadCanvas(canvas, filename) {
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        async function downloadAllRecipes() {
+            if (currentMeals.length === 0) {
+                alert('Please generate a week first!');
+                return;
+            }
+            
+            for (let i = 0; i < currentMeals.length; i++) {
+                const canvas = await createRecipeImage(currentMeals[i], i + 1);
+                const filename = `day-${i + 1}-${currentMeals[i].name.replace(/\s+/g, '-').toLowerCase()}.png`;
+                downloadCanvas(canvas, filename);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        async function downloadSelected() {
+            const checkboxes = document.querySelectorAll('.meal-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('Please select at least one meal!');
+                return;
+            }
+            
+            for (let checkbox of checkboxes) {
+                const index = parseInt(checkbox.id.split('-')[1]);
+                const meal = currentMeals[index];
+                const canvas = await createRecipeImage(meal, index + 1);
+                const filename = `day-${index + 1}-${meal.name.replace(/\s+/g, '-').toLowerCase()}.png`;
+                downloadCanvas(canvas, filename);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        async function downloadGroceryList() {
+            if (currentMeals.length === 0) {
+                alert('Please generate a week first!');
+                return;
+            }
+            
+            const canvas = await createGroceryListImage(currentMeals);
+            downloadCanvas(canvas, 'waitrose-shopping-list.png');
+        }
+    </script>
+</body>
+</html>

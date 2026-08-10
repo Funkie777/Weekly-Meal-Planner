@@ -1,658 +1,578 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Meal Planner</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; line-height: 1.6; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; margin-bottom: 10px; font-size: 28px; }
-        .subtitle { color: #7f8c8d; margin-bottom: 30px; font-size: 14px; }
-        .controls { margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 6px; display: flex; flex-wrap: wrap; gap: 10px; }
-        button { background: #27ae60; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 500; }
-        button:hover { opacity: 0.88; }
-        .print-btn { background: #3498db; }
-        .download-btn { background: #8e44ad; }
-        .meal-card { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fafafa; }
-        .meal-card.hidden { display: none; }
-        .meal-card.high-cal { border-left: 4px solid #e74c3c; }
-        .meal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; flex-wrap: wrap; gap: 10px; }
-        .meal-header-left { display: flex; align-items: center; gap: 12px; }
-        .meal-checkbox { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; }
-        .meal-title { font-size: 20px; font-weight: 600; color: #2c3e50; }
-        .high-cal-tag { font-size: 11px; background: #e74c3c; color: white; padding: 2px 7px; border-radius: 3px; margin-left: 8px; vertical-align: middle; }
-        .meal-content { margin-top: 15px; }
-        .section-title { font-weight: 600; color: #34495e; margin-top: 15px; margin-bottom: 8px; font-size: 16px; }
-        .ingredients-list, .method-list { list-style-position: inside; color: #555; }
-        .ingredients-list li { margin-bottom: 4px; list-style-type: none; padding-left: 20px; position: relative; }
-        .ingredients-list li:before { content: "•"; position: absolute; left: 5px; }
-        .method-list li { margin-bottom: 8px; padding-left: 5px; }
-        .shopping-list { margin-top: 30px; padding: 20px; background: #fff9e6; border: 2px solid #f39c12; border-radius: 6px; }
-        .shopping-list h2 { color: #d68910; margin-bottom: 15px; font-size: 22px; }
-        .shopping-category { margin-bottom: 15px; }
-        .category-name { font-weight: 600; color: #34495e; margin-bottom: 6px; font-size: 15px; }
-        .shopping-items { list-style: none; padding-left: 15px; }
-        .shopping-items li { margin-bottom: 3px; color: #555; font-size: 14px; }
-        .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px; }
-        .search-box:focus { outline: none; border-color: #27ae60; }
-        .macros { display: flex; gap: 6px; flex-wrap: wrap; }
-        .macro-badge { background: #27ae60; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-        .macro-badge.protein { background: #e74c3c; }
-        .macro-badge.carbs { background: #f39c12; }
-        .macro-badge.fat { background: #7f8c8d; }
-        @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; padding: 20px; }
-            .controls, .search-box { display: none; }
-            .meal-card { page-break-inside: avoid; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Meal Planner</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f5f5; padding: 20px; line-height: 1.6; }
+  .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  h1 { color: #2c3e50; margin-bottom: 10px; font-size: 28px; }
+  .subtitle { color: #7f8c8d; margin-bottom: 30px; font-size: 14px; }
+  .controls { margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 6px; display: flex; flex-wrap: wrap; gap: 10px; }
+  button { background: #27ae60; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 500; }
+  button:hover { opacity: 0.88; }
+  .print-btn { background: #3498db; }
+  .download-btn { background: #8e44ad; }
+  .meal-card { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 6px; background: #fafafa; }
+  .meal-card.hidden { display: none; }
+  .meal-card.fish-tag { border-left: 4px solid #2980b9; }
+  .meal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e0e0e0; flex-wrap: wrap; gap: 10px; }
+  .meal-header-left { display: flex; align-items: center; gap: 12px; }
+  .meal-checkbox { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; }
+  .meal-title { font-size: 20px; font-weight: 600; color: #2c3e50; }
+  .fish-badge { font-size: 11px; background: #2980b9; color: white; padding: 2px 7px; border-radius: 3px; margin-left: 8px; vertical-align: middle; }
+  .meal-content { margin-top: 15px; }
+  .section-title { font-weight: 600; color: #34495e; margin-top: 15px; margin-bottom: 8px; font-size: 16px; }
+  .tip-box { margin-top: 12px; padding: 10px 14px; background: #fff9e6; border-left: 3px solid #f39c12; border-radius: 4px; font-size: 14px; color: #7a5c00; }
+  .ingredients-list, .method-list { list-style-position: inside; color: #555; }
+  .ingredients-list li { margin-bottom: 4px; list-style-type: none; padding-left: 20px; position: relative; }
+  .ingredients-list li:before { content: "\2022"; position: absolute; left: 5px; }
+  .method-list li { margin-bottom: 8px; padding-left: 5px; }
+  .shopping-list { margin-top: 30px; padding: 20px; background: #fff9e6; border: 2px solid #f39c12; border-radius: 6px; }
+  .shopping-list h2 { color: #d68910; margin-bottom: 15px; font-size: 22px; }
+  .shopping-category { margin-bottom: 15px; }
+  .category-name { font-weight: 600; color: #34495e; margin-bottom: 6px; font-size: 15px; }
+  .shopping-items { list-style: none; padding-left: 15px; }
+  .shopping-items li { margin-bottom: 3px; color: #555; font-size: 14px; }
+  .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 16px; }
+  .search-box:focus { outline: none; border-color: #27ae60; }
+  .macros { display: flex; gap: 6px; flex-wrap: wrap; }
+  .macro-badge { background: #27ae60; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .macro-badge.protein { background: #e74c3c; }
+  .macro-badge.carbs { background: #f39c12; }
+  .macro-badge.fat { background: #7f8c8d; }
+  .macro-badge.fiber { background: #16a085; }
+  @media print {
+    body { background: white; padding: 0; }
+    .container { box-shadow: none; padding: 20px; }
+    .controls, .search-box { display: none; }
+    .meal-card { page-break-inside: avoid; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Weekly Dinner Planner</h1>
-        <p class="subtitle">16 high-protein meals | All macros per serving (serves 2) | MFP Quick Add Ready | Macros verified from ingredients</p>
-        <input type="text" class="search-box" id="searchBox" placeholder="Search meals by name (e.g., chicken, salmon, pasta)...">
-        <div class="controls">
-            <button onclick="generateWeek()">Generate New Week</button>
-            <button onclick="showAll()">Show All 16 Meals</button>
-            <button class="print-btn" onclick="window.print()">Print</button>
-            <button class="download-btn" onclick="downloadSelected()">Download Selected</button>
-            <button class="download-btn" onclick="downloadGroceryList()">Download Grocery List</button>
-        </div>
-        <div id="meals"></div>
-        <div id="shopping"></div>
-    </div>
-
-```
+<div class="container">
+  <h1>Weekly Dinner Planner</h1>
+  <p class="subtitle">10 high-protein meals | Source: Instagram @healthyeatingfeed | All macros per serving (serves 2) | 45-50g protein, max 800 kcal | Fish limited to salmon, max 1 per week</p>
+  <input type="text" class="search-box" id="searchBox" placeholder="Search meals by name e.g., chicken, salmon, beef...">
+  <div class="controls">
+    <button onclick="generateWeek()">Generate New Week</button>
+    <button onclick="showAll()">Show All 10 Meals</button>
+    <button class="print-btn" onclick="window.print()">Print</button>
+    <button class="download-btn" onclick="downloadSelected()">Download Selected</button>
+    <button class="download-btn" onclick="downloadGroceryList()">Download Grocery List</button>
+  </div>
+  <div id="meals"></div>
+  <div id="shopping"></div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-    let currentMeals = [];
+let currentMeals = [];
 
-    const mealDatabase = [
+const mealDatabase = [
         {
-            name: "Grilled Chicken with Tabbouleh and Hummus",
-            calories: 590, protein: 55, carbs: 42, fat: 18,
-            ingredients: [
-                { item: "Chicken breasts", qty: "2 large (400g)", category: "Meat & Fish" },
-                { item: "Bulgur wheat", qty: "120g dry", category: "Cooking" },
-                { item: "Cherry tomatoes", qty: "200g", category: "Vegetables" },
-                { item: "Cucumber", qty: "Half", category: "Vegetables" },
-                { item: "Flat-leaf parsley", qty: "Large bunch", category: "Fresh Herbs" },
-                { item: "Fresh mint", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Lemon", qty: "2", category: "Vegetables" },
-                { item: "Hummus", qty: "100g", category: "Cooking" },
-                { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Cook bulgur wheat: pour boiling water over, cover and leave 15 minutes. Fluff with fork.",
-                "Pound chicken breasts to even thickness. Season with salt, pepper, and a squeeze of lemon.",
-                "Heat a griddle or frying pan over high heat. Cook chicken 5-6 minutes each side until cooked through. Rest 5 minutes, then slice.",
-                "Finely chop parsley, mint, tomatoes, and cucumber. Combine with cooled bulgur.",
-                "Dress tabbouleh with lemon juice and olive oil. Season well.",
-                "Serve sliced chicken alongside tabbouleh with a spoonful of hummus."
-            ]
+          name: "French Onion Beef Grilled Cheese",
+          calories: 780,
+          protein: 46,
+          carbs: 58,
+          fat: 40,
+          fiber: 4,
+          fish: false,
+          ingredients: [
+            { item: "Yellow onions", qty: "2 large, sliced thin", category: "Vegetables" },
+            { item: "Unsalted butter (for onions)", qty: "60g (4 tbsp)", category: "Dairy" },
+            { item: "Fresh thyme leaves", qty: "2 tsp", category: "Fresh Herbs" },
+            { item: "Low-sodium beef broth", qty: "160ml", category: "Cooking" },
+            { item: "Sirloin steak (~1 inch thick)", qty: "340g (12oz)", category: "Meat & Fish" },
+            { item: "Sourdough bread", qty: "4 thick slices", category: "Cooking" },
+            { item: "Gruyere, grated", qty: "115g (4oz)", category: "Dairy" },
+            { item: "Olive oil", qty: "2 tsp", category: "Cooking" },
+            { item: "Softened butter (for the bread)", qty: "30g (2 tbsp)", category: "Dairy" },
+            { item: "Salt and black pepper", qty: "To taste", category: "Cooking" }
+          ],
+          method: [
+            "Caramelise the onions in butter over medium-low heat for 20-25 minutes.",
+            "Build the jus: add thyme, pour in the beef broth, scrape the pan and reduce until glossy and jammy.",
+            "Sear and rest the steak: season, sear ~3 min per side for medium-rare, rest 5 minutes, then slice against the grain.",
+            "Assemble: butter the outsides of the bread, layer half the Gruyere, the steak, the onions, then the rest of the cheese.",
+            "Griddle low and slow in a dry pan ~4 min per side, pressing gently, until golden and melted.",
+            "Cut and serve."
+          ]
         },
         {
-            name: "Beef and Vegetable Skewers with Herby Quinoa",
-            calories: 620, protein: 52, carbs: 44, fat: 22,
-            ingredients: [
-                { item: "Beef sirloin or rump", qty: "320g, cubed", category: "Meat & Fish" },
-                { item: "Quinoa", qty: "140g dry", category: "Cooking" },
-                { item: "Red pepper", qty: "1 large", category: "Vegetables" },
-                { item: "Courgette", qty: "1 medium", category: "Vegetables" },
-                { item: "Red onion", qty: "1 medium", category: "Vegetables" },
-                { item: "Cherry tomatoes", qty: "150g", category: "Vegetables" },
-                { item: "Fresh flat-leaf parsley", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Lemon", qty: "1", category: "Vegetables" },
-                { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
-                { item: "Smoked paprika", qty: "1 tsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Cook quinoa according to packet instructions. Set aside to cool slightly.",
-                "Cut pepper, courgette, and onion into similar-sized chunks. Thread onto skewers alternating with beef and cherry tomatoes.",
-                "Mix olive oil, smoked paprika, salt and pepper. Brush over skewers.",
-                "Cook skewers on a hot griddle or under the grill for 10-12 minutes, turning every 3 minutes.",
-                "Chop parsley and stir through quinoa with lemon juice and a drizzle of olive oil.",
-                "Serve skewers over herby quinoa."
-            ]
+          name: "Cajun Honey Butter Salmon Bites",
+          calories: 720,
+          protein: 50,
+          carbs: 52,
+          fat: 32,
+          fiber: 4,
+          fish: true,
+          ingredients: [
+            { item: "Skinless salmon, cubed", qty: "450g (16oz)", category: "Meat & Fish" },
+            { item: "Cajun seasoning (for salmon)", qty: "4 tsp", category: "Cooking" },
+            { item: "Olive oil", qty: "2 tsp", category: "Cooking" },
+            { item: "Salt and black pepper", qty: "To taste", category: "Cooking" },
+            { item: "Unsalted butter (glaze)", qty: "30g (2 tbsp)", category: "Dairy" },
+            { item: "Honey (glaze)", qty: "2 tbsp", category: "Cooking" },
+            { item: "Garlic cloves, minced", qty: "4", category: "Vegetables" },
+            { item: "Cajun seasoning (glaze)", qty: "1 tsp", category: "Cooking" },
+            { item: "Lemon, to finish", qty: "1", category: "Vegetables" },
+            { item: "Jasmine rice, cooked", qty: "300g (1.5 cups)", category: "Cooking" },
+            { item: "Broccolini", qty: "225g (8oz)", category: "Vegetables" },
+            { item: "Olive oil (for broccolini)", qty: "2 tsp", category: "Cooking" }
+          ],
+          method: [
+            "Char the broccolini in a dry hot pan ~3 min per side.",
+            "Season and pat dry the salmon cubes.",
+            "Sear hard without stirring - 2 min on the first side, then ~45 sec on the other sides, keeping the centres soft.",
+            "Make the glaze off the heat: swirl together butter, honey, garlic and the extra Cajun seasoning.",
+            "Toss the bites through the glaze on low heat.",
+            "Build the plate over rice with the broccolini and a squeeze of lemon."
+          ]
         },
         {
-            name: "Chicken Souvlaki with Greek Salad and Flatbread",
-            calories: 640, protein: 54, carbs: 48, fat: 21,
-            ingredients: [
-                { item: "Chicken thighs (boneless)", qty: "4 (400g)", category: "Meat & Fish" },
-                { item: "Flatbreads", qty: "2", category: "Cooking" },
-                { item: "Greek yogurt", qty: "100g", category: "Dairy" },
-                { item: "Cucumber", qty: "Half", category: "Vegetables" },
-                { item: "Tomatoes", qty: "2 medium", category: "Vegetables" },
-                { item: "Red onion", qty: "Half", category: "Vegetables" },
-                { item: "Feta cheese", qty: "40g", category: "Dairy" },
-                { item: "Dried oregano", qty: "2 tsp", category: "Cooking" },
-                { item: "Lemon", qty: "1", category: "Vegetables" },
-                { item: "Garlic cloves", qty: "2", category: "Vegetables" },
-                { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Mix olive oil, oregano, crushed garlic, lemon juice, salt and pepper. Coat chicken and marinate 10 minutes.",
-                "Cook chicken on a hot griddle pan for 6-7 minutes each side until cooked through and charred. Rest, then slice.",
-                "Chop cucumber, tomatoes, and red onion. Toss with a drizzle of olive oil and crumbled feta.",
-                "Mix yogurt with a pinch of crushed garlic and lemon juice for a simple tzatziki-style sauce.",
-                "Warm flatbreads in a dry pan for 30 seconds each side.",
-                "Serve chicken with flatbread, Greek salad, and yogurt sauce."
-            ]
+          name: "Creamy Garlic Parmesan Steak Rigatoni",
+          calories: 620,
+          protein: 46,
+          carbs: 48,
+          fat: 30,
+          fiber: 3,
+          fish: false,
+          ingredients: [
+            { item: "Steak (sirloin or ribeye)", qty: "340g (12oz)", category: "Meat & Fish" },
+            { item: "Rigatoni", qty: "225g (8oz)", category: "Cooking" },
+            { item: "Mushrooms, sliced", qty: "140g (2 cups)", category: "Vegetables" },
+            { item: "Heavy cream", qty: "240ml (1 cup)", category: "Dairy" },
+            { item: "Parmesan, grated", qty: "50g (1/2 cup)", category: "Dairy" },
+            { item: "Garlic cloves, minced", qty: "6", category: "Vegetables" },
+            { item: "Fresh parsley", qty: "Small bunch", category: "Fresh Herbs" },
+            { item: "Salt and black pepper", qty: "To taste", category: "Cooking" }
+          ],
+          method: [
+            "Season the steak well and sear in a hot pan a few minutes per side until browned outside and pink within, then set aside to rest.",
+            "In the same pan, cook the mushrooms and garlic until golden, then pour in the cream and parmesan and simmer into a glossy sauce.",
+            "Toss the cooked rigatoni through the sauce with a splash of pasta water until every tube is coated.",
+            "Slice the rested steak across the grain, lay it over the pasta, and finish with fresh parsley."
+          ]
         },
         {
-            name: "Lamb Mince Lettuce Cups with Minted Yogurt",
-            calories: 509, protein: 55, carbs: 6, fat: 30,
-            ingredients: [
-                { item: "Lamb mince (lean)", qty: "450g", category: "Meat & Fish" },
-                { item: "Little Gem lettuces", qty: "2 heads", category: "Vegetables" },
-                { item: "Greek yogurt", qty: "100g", category: "Dairy" },
-                { item: "Fresh mint", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Red onion", qty: "Half", category: "Vegetables" },
-                { item: "Cherry tomatoes", qty: "150g", category: "Vegetables" },
-                { item: "Cucumber", qty: "Half", category: "Vegetables" },
-                { item: "Cumin", qty: "1 tsp", category: "Cooking" },
-                { item: "Cinnamon", qty: "Half tsp", category: "Cooking" },
-                { item: "Garlic cloves", qty: "2", category: "Vegetables" },
-                { item: "Lemon", qty: "1", category: "Vegetables" },
-                { item: "Olive oil", qty: "1 tbsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Heat oil in a pan over high heat. Add lamb mince and cook for 5-6 minutes, breaking up until browned.",
-                "Add crushed garlic, cumin, cinnamon, salt and pepper. Cook 2 minutes more.",
-                "Dice cucumber and tomatoes. Finely slice red onion.",
-                "Mix yogurt with chopped mint and a squeeze of lemon.",
-                "Separate lettuce leaves into cup shapes.",
-                "Spoon lamb into lettuce cups, top with diced salad and minted yogurt. Squeeze over lemon."
-            ]
+          name: "Honey Garlic Chicken Thighs with Buttery Mash & Green Beans",
+          calories: 620,
+          protein: 46,
+          carbs: 42,
+          fat: 30,
+          fiber: 5,
+          fish: false,
+          ingredients: [
+            { item: "Chicken thighs", qty: "4 (approx 480g)", category: "Meat & Fish" },
+            { item: "Baby potatoes, diced", qty: "450g (1lb)", category: "Vegetables" },
+            { item: "Green beans, trimmed", qty: "300g (2 cups)", category: "Vegetables" },
+            { item: "Honey", qty: "3 tbsp", category: "Cooking" },
+            { item: "Garlic cloves, minced", qty: "4", category: "Vegetables" },
+            { item: "Dijon mustard", qty: "2 tbsp", category: "Cooking" },
+            { item: "Heavy cream", qty: "120ml (1/2 cup)", category: "Dairy" },
+            { item: "Butter", qty: "30g (2 tbsp)", category: "Dairy" },
+            { item: "Olive oil", qty: "1 tbsp", category: "Cooking" },
+            { item: "Salt and black pepper", qty: "To taste", category: "Cooking" },
+            { item: "Fresh parsley", qty: "Small bunch", category: "Fresh Herbs" },
+            { item: "Chicken broth", qty: "1 tsp", category: "Cooking" }
+          ],
+          method: [
+            "Roast the potatoes: toss diced potatoes in olive oil, salt and pepper and roast at 220C for ~25 minutes, turning once, until crisp and golden at the edges.",
+            "Sear the chicken: pat thighs dry, season, and sear in butter over medium-high heat for 4-5 minutes per side until deeply golden and cooked through. Transfer to a plate to rest.",
+            "Make the sauce: in the same pan, soften the garlic, then whisk in the honey, Dijon, cream and a splash of broth. Simmer 2-3 minutes until glossy and thick enough to coat a spoon.",
+            "Plate it: steam the green beans until crisp-tender, return the chicken to the sauce to coat, then plate with the potatoes and beans and a scatter of parsley."
+          ]
         },
         {
-            name: "Turkey Mince Stuffed Peppers with Rice",
-            calories: 684, protein: 58, carbs: 71, fat: 18,
-            ingredients: [
-                { item: "Turkey breast mince", qty: "450g", category: "Meat & Fish" },
-                { item: "Bell peppers", qty: "4 large (mixed colours)", category: "Vegetables" },
-                { item: "White rice", qty: "120g dry", category: "Cooking" },
-                { item: "Tinned chopped tomatoes", qty: "200g", category: "Cooking" },
-                { item: "Onion", qty: "1 medium", category: "Vegetables" },
-                { item: "Garlic cloves", qty: "3", category: "Vegetables" },
-                { item: "Fresh basil", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Smoked paprika", qty: "1 tsp", category: "Cooking" },
-                { item: "Olive oil", qty: "1 tbsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Preheat oven to 190°C. Cook rice to packet instructions, slightly underdone.",
-                "Halve peppers lengthways, remove seeds. Place cut-side up in a roasting dish.",
-                "Heat oil in pan. Cook diced onion 3 minutes. Add turkey mince, cook 5-6 minutes until browned.",
-                "Add crushed garlic, paprika, tinned tomatoes, and cooked rice. Season well. Simmer 2 minutes.",
-                "Spoon filling into pepper halves. Add a splash of water to the roasting dish.",
-                "Bake for 20-25 minutes until peppers are tender.",
-                "Scatter fresh basil over to serve."
-            ]
+          name: "Sticky Beef Noodles with Broccoli",
+          calories: 610,
+          protein: 45,
+          carbs: 52,
+          fat: 20,
+          fiber: 5,
+          fish: false,
+          ingredients: [
+            { item: "Ground beef", qty: "225g (8oz)", category: "Meat & Fish" },
+            { item: "Noodles", qty: "170g (6oz)", category: "Cooking" },
+            { item: "Broccoli florets", qty: "180g (2 cups)", category: "Vegetables" },
+            { item: "Soy sauce", qty: "3 tbsp", category: "Cooking" },
+            { item: "Honey", qty: "1 tbsp", category: "Cooking" },
+            { item: "Garlic cloves, minced", qty: "2", category: "Vegetables" },
+            { item: "Fresh ginger, grated", qty: "1 tbsp", category: "Vegetables" },
+            { item: "Sesame oil", qty: "1 tsp", category: "Cooking" },
+            { item: "Scallions, sliced", qty: "2", category: "Vegetables" },
+            { item: "Chili crisp", qty: "1 tbsp", category: "Cooking" },
+            { item: "Neutral oil", qty: "1 tbsp", category: "Cooking" },
+            { item: "Sesame seeds", qty: "To finish", category: "Cooking" }
+          ],
+          method: [
+            "Cook the noodles: boil until just tender, drain, and toss with a drop of sesame oil so they don't stick.",
+            "Brown the beef: sear the ground beef in a hot pan until deeply browned and crisp in places, then push it to one side and add the broccoli to char for a couple of minutes.",
+            "Make it sticky: stir in the garlic, ginger, soy sauce and honey, letting it bubble down for about a minute until it coats the beef and broccoli in a glossy glaze.",
+            "Toss together: add the noodles and turn everything through the sauce, then finish with scallions, chili crisp and a scatter of sesame seeds."
+          ]
         },
         {
-            name: "Baked Salmon with Asparagus and Lemon Caper Dressing",
-            calories: 717, protein: 52, carbs: 18, fat: 49,
-            ingredients: [
-                { item: "Salmon fillets", qty: "2 (480g total)", category: "Meat & Fish" },
-                { item: "Asparagus", qty: "250g", category: "Vegetables" },
-                { item: "New potatoes", qty: "150g", category: "Vegetables" },
-                { item: "Capers", qty: "2 tbsp", category: "Cooking" },
-                { item: "Lemon", qty: "2", category: "Vegetables" },
-                { item: "Fresh dill", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Olive oil", qty: "3 tbsp", category: "Cooking" },
-                { item: "Garlic cloves", qty: "1", category: "Vegetables" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Preheat oven to 200°C. Halve new potatoes and boil for 12 minutes until just tender. Drain.",
-                "Place salmon on baking tray lined with parchment. Season with salt, pepper, and lemon slices.",
-                "Toss asparagus with 1 tbsp olive oil and a pinch of salt. Add to tray alongside salmon.",
-                "Bake for 12-14 minutes until salmon is just cooked through and asparagus is tender.",
-                "Make dressing: whisk together remaining olive oil, lemon juice, capers, crushed garlic, and chopped dill.",
-                "Serve salmon and asparagus with new potatoes, drizzled generously with caper dressing."
-            ]
+          name: "Chicken Shawarma Bowl with Garlic Yogurt",
+          calories: 480,
+          protein: 45,
+          carbs: 40,
+          fat: 17,
+          fiber: 4,
+          fish: false,
+          ingredients: [
+            { item: "Chicken thigh, boneless", qty: "300g (10oz)", category: "Meat & Fish" },
+            { item: "Cooked white rice", qty: "240g (1 cup)", category: "Cooking" },
+            { item: "Cucumber, sliced into rounds", qty: "1", category: "Vegetables" },
+            { item: "Tomatoes, diced", qty: "2 medium", category: "Vegetables" },
+            { item: "Red onion, diced", qty: "Half", category: "Vegetables" },
+            { item: "Shredded lettuce", qty: "2 cups", category: "Vegetables" },
+            { item: "Olive oil", qty: "2 tsp", category: "Cooking" },
+            { item: "Fresh parsley, chopped", qty: "Small bunch", category: "Fresh Herbs" },
+            { item: "Cumin", qty: "2 tsp", category: "Cooking" },
+            { item: "Ground coriander", qty: "2 tsp", category: "Cooking" },
+            { item: "Turmeric", qty: "1 tsp", category: "Cooking" },
+            { item: "Paprika", qty: "1 tsp", category: "Cooking" },
+            { item: "Plain Greek yogurt", qty: "120g (1/2 cup)", category: "Dairy" },
+            { item: "Garlic clove, grated", qty: "2", category: "Vegetables" }
+          ],
+          method: [
+            "Rub the thighs with the spices and oil and leave them 20 minutes so the dry spice can penetrate rather than sit on the surface.",
+            "Grate the garlic straight into the yogurt with a pinch of salt and let it sit while you cook.",
+            "Sear the thighs whole in a hot pan for 5 minutes a side, letting the spice crust blacken in patches.",
+            "Rest the chicken 5 full minutes before slicing.",
+            "Layer the rice down first, arrange everything around the bowl, and put the garlic yogurt in the middle."
+          ]
         },
         {
-            name: "Chicken and Avocado Rice Bowl",
-            calories: 680, protein: 52, carbs: 55, fat: 24,
-            ingredients: [
-                { item: "Chicken breasts", qty: "2 (400g)", category: "Meat & Fish" },
-                { item: "White rice", qty: "150g dry", category: "Cooking" },
-                { item: "Avocado", qty: "1 ripe", category: "Vegetables" },
-                { item: "Cucumber", qty: "Half", category: "Vegetables" },
-                { item: "Spring onions", qty: "4", category: "Vegetables" },
-                { item: "Radishes", qty: "6", category: "Vegetables" },
-                { item: "Soy sauce", qty: "3 tbsp", category: "Cooking" },
-                { item: "Sesame oil", qty: "1 tbsp", category: "Cooking" },
-                { item: "Rice vinegar", qty: "1 tbsp", category: "Cooking" },
-                { item: "Sesame seeds", qty: "1 tbsp", category: "Cooking" },
-                { item: "Fresh ginger", qty: "2cm piece", category: "Vegetables" },
-                { item: "Lime", qty: "1", category: "Vegetables" }
-            ],
-            method: [
-                "Cook rice according to packet instructions.",
-                "Season chicken with salt. Cook in a pan over medium-high heat for 6-7 minutes each side until cooked through. Rest 5 minutes, then slice.",
-                "Mix soy sauce, sesame oil, rice vinegar, grated ginger, and lime juice for dressing.",
-                "Slice cucumber, radishes, and spring onions. Halve and stone avocado, slice.",
-                "Divide rice between bowls. Arrange sliced chicken, avocado, cucumber, radishes, and spring onions on top.",
-                "Drizzle with dressing and scatter over sesame seeds."
-            ]
+          name: "Chicken Katsu Curry",
+          calories: 780,
+          protein: 45,
+          carbs: 88,
+          fat: 28,
+          fiber: 6,
+          fish: false,
+          tip: "Rest the fried cutlet on a rack, never a plate - steam trapped underneath is the only thing that turns good panko soggy.",
+          ingredients: [
+            { item: "Boneless chicken breasts, pounded thin", qty: "2", category: "Meat & Fish" },
+            { item: "Panko breadcrumbs", qty: "100g (1 cup)", category: "Cooking" },
+            { item: "Egg, beaten", qty: "1", category: "Dairy" },
+            { item: "All-purpose flour", qty: "30g (1/4 cup)", category: "Cooking" },
+            { item: "Japanese curry roux", qty: "3 blocks", category: "Cooking" },
+            { item: "Chicken broth", qty: "480ml (2 cups)", category: "Cooking" },
+            { item: "Onion, chunky", qty: "1", category: "Vegetables" },
+            { item: "Carrots, chunky", qty: "2", category: "Vegetables" },
+            { item: "Potato, chunky", qty: "1", category: "Vegetables" },
+            { item: "Cooked white rice", qty: "400g (2 cups)", category: "Cooking" },
+            { item: "Cabbage, shredded fine", qty: "90g (1 cup)", category: "Vegetables" },
+            { item: "Cucumber, sliced", qty: "Half", category: "Vegetables" },
+            { item: "Scallions", qty: "2", category: "Vegetables" },
+            { item: "Black sesame seeds", qty: "To finish", category: "Cooking" },
+            { item: "Neutral oil, for frying", qty: "As needed", category: "Cooking" }
+          ],
+          method: [
+            "Simmer the onion, carrot and potato in the broth for 15 minutes until just tender.",
+            "Melt the roux in off the heat, because boiling it turns the sauce grainy.",
+            "Pound the chicken to an even half-inch so the crust browns as the centre cooks.",
+            "Dredge in flour, then egg, then press hard into the panko.",
+            "Fry at 175C for 3-4 minutes a side until deep gold.",
+            "Rest, slice thick, and plate with rice, curry, cabbage, cucumber and sesame."
+          ]
         },
         {
-            name: "Beef Steak Salad with Charred Corn and Chipotle Dressing",
-            calories: 590, protein: 51, carbs: 28, fat: 29,
-            ingredients: [
-                { item: "Sirloin steaks", qty: "2 (320g total)", category: "Meat & Fish" },
-                { item: "Corn on the cob", qty: "2", category: "Vegetables" },
-                { item: "Mixed salad leaves", qty: "100g", category: "Vegetables" },
-                { item: "Cherry tomatoes", qty: "150g", category: "Vegetables" },
-                { item: "Red onion", qty: "Half", category: "Vegetables" },
-                { item: "Avocado", qty: "1", category: "Vegetables" },
-                { item: "Lime", qty: "2", category: "Vegetables" },
-                { item: "Chipotle paste", qty: "1 tsp", category: "Cooking" },
-                { item: "Greek yogurt", qty: "60g", category: "Dairy" },
-                { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
-                { item: "Fresh coriander", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Season steaks with salt and pepper. Bring to room temperature.",
-                "Cook corn in boiling water for 5 minutes, then char on a hot griddle pan until blackened in spots. Slice kernels off cob.",
-                "Cook steaks on hot griddle pan 3 minutes each side for medium-rare. Rest 5 minutes, then slice thin.",
-                "Make dressing: mix yogurt, chipotle paste, lime juice, and a pinch of salt.",
-                "Arrange leaves, tomatoes, sliced red onion, avocado, and charred corn in bowls.",
-                "Top with steak slices. Drizzle with chipotle dressing and coriander."
-            ]
+          name: "Peri Peri Chicken",
+          calories: 620,
+          protein: 46,
+          carbs: 10,
+          fat: 42,
+          fiber: 3,
+          fish: false,
+          tip: "Save a third of the sauce raw for the end - what cooks on turns smoky, what goes on after brings back the sting.",
+          ingredients: [
+            { item: "Bone-in chicken leg quarters", qty: "2", category: "Meat & Fish" },
+            { item: "Red bird's-eye chiles, stemmed", qty: "10", category: "Vegetables" },
+            { item: "Red bell pepper, roasted", qty: "2", category: "Vegetables" },
+            { item: "Garlic cloves", qty: "8", category: "Vegetables" },
+            { item: "Red wine vinegar", qty: "6 tbsp", category: "Cooking" },
+            { item: "Smoked paprika", qty: "2 tbsp", category: "Cooking" },
+            { item: "Oregano", qty: "2 tsp", category: "Cooking" },
+            { item: "Lemon, juiced", qty: "2", category: "Vegetables" },
+            { item: "Lime, to serve", qty: "2", category: "Vegetables" },
+            { item: "Olive oil", qty: "120ml (1/2 cup)", category: "Cooking" },
+            { item: "Iceberg lettuce", qty: "Half head", category: "Vegetables" },
+            { item: "Fresh cilantro", qty: "Small bunch", category: "Fresh Herbs" },
+            { item: "Cracked black pepper", qty: "To taste", category: "Cooking" }
+          ],
+          method: [
+            "Blitz the chiles, pepper, garlic, vinegar, paprika, oregano, lemon and oil into a coarse sauce.",
+            "Slash the legs to the bone twice a side and rub the sauce into the cuts.",
+            "Marinate at least 2 hours, because the vinegar needs time to work past the skin.",
+            "Roast at 220C for 40 minutes, skin up, until the sauce chars in patches.",
+            "Brush with the reserved raw sauce and serve with torn iceberg and a lime half."
+          ]
         },
         {
-            name: "Turkey Mince Larb Bowl with Rice",
-            calories: 627, protein: 55, carbs: 61, fat: 17,
-            ingredients: [
-                { item: "Turkey breast mince", qty: "450g", category: "Meat & Fish" },
-                { item: "Jasmine rice", qty: "150g dry", category: "Cooking" },
-                { item: "Shallots", qty: "3", category: "Vegetables" },
-                { item: "Fresh mint", qty: "Large bunch", category: "Fresh Herbs" },
-                { item: "Fresh coriander", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Spring onions", qty: "4", category: "Vegetables" },
-                { item: "Cucumber", qty: "Half", category: "Vegetables" },
-                { item: "Fish sauce", qty: "2 tbsp", category: "Cooking" },
-                { item: "Lime", qty: "2", category: "Vegetables" },
-                { item: "Chilli flakes", qty: "Half tsp", category: "Cooking" },
-                { item: "Vegetable oil", qty: "1 tbsp", category: "Cooking" }
-            ],
-            method: [
-                "Cook jasmine rice according to packet instructions.",
-                "Heat oil in a pan over high heat. Add turkey mince and cook 6-8 minutes, breaking up until cooked through.",
-                "Finely slice shallots, spring onions, and cucumber. Roughly chop mint and coriander.",
-                "Remove pan from heat. Add fish sauce, lime juice, chilli flakes, shallots, and most of the herbs. Toss well.",
-                "Taste and adjust seasoning with more lime juice or fish sauce.",
-                "Serve larb over rice, topped with remaining fresh herbs and cucumber."
-            ]
+          name: "Musakhan",
+          calories: 790,
+          protein: 46,
+          carbs: 62,
+          fat: 40,
+          fiber: 6,
+          fish: false,
+          tip: "Cook the onions for longer than feels necessary - three onions should collapse to a cupful before the sumac goes anywhere near them.",
+          ingredients: [
+            { item: "Bone-in chicken thighs", qty: "4", category: "Meat & Fish" },
+            { item: "Large onions, sliced thin", qty: "3", category: "Vegetables" },
+            { item: "Ground sumac", qty: "3 tbsp, plus more to finish", category: "Cooking" },
+            { item: "Olive oil", qty: "120ml (1/2 cup)", category: "Cooking" },
+            { item: "Pine nuts", qty: "70g (1/2 cup)", category: "Cooking" },
+            { item: "Taboon or naan flatbreads", qty: "2", category: "Cooking" },
+            { item: "Allspice", qty: "1 tsp", category: "Cooking" },
+            { item: "Cinnamon", qty: "1/2 tsp", category: "Cooking" },
+            { item: "Lemon, juiced", qty: "1/2", category: "Vegetables" },
+            { item: "Fresh parsley", qty: "Small bunch", category: "Fresh Herbs" },
+            { item: "Salt and cracked pepper", qty: "To taste", category: "Cooking" }
+          ],
+          method: [
+            "Rub the thighs with sumac, allspice, lemon and oil, then roast at 200C for 40 minutes.",
+            "Cook the onions in olive oil over low heat for 30 minutes until jammy and deep gold.",
+            "Stir the sumac and cinnamon through the onions off the heat so it stays fragrant.",
+            "Toast the pine nuts in a dry pan until golden, watching them the whole time.",
+            "Pile the onions on the warmed flatbread, set the chicken over, top with pine nuts and parsley."
+          ]
         },
         {
-            name: "Chicken Paillard with Rocket, Parmesan and Lemon",
-            calories: 490, protein: 55, carbs: 8, fat: 25,
-            ingredients: [
-                { item: "Chicken breasts", qty: "2 large (440g)", category: "Meat & Fish" },
-                { item: "Rocket", qty: "80g", category: "Vegetables" },
-                { item: "Parmesan", qty: "40g", category: "Dairy" },
-                { item: "Cherry tomatoes", qty: "150g", category: "Vegetables" },
-                { item: "Lemon", qty: "2", category: "Vegetables" },
-                { item: "Olive oil", qty: "3 tbsp", category: "Cooking" },
-                { item: "Garlic cloves", qty: "1", category: "Vegetables" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Place chicken breasts between two sheets of cling film. Bash with a rolling pin until 1cm thick.",
-                "Season both sides with salt and pepper. Rub with 1 tbsp olive oil and a little crushed garlic.",
-                "Heat a griddle or frying pan over high heat. Cook chicken 3 minutes each side until golden and cooked through.",
-                "Halve cherry tomatoes. Toss rocket, tomatoes with remaining olive oil and lemon juice. Season.",
-                "Shave or grate parmesan.",
-                "Plate chicken, pile salad on top, scatter parmesan, and finish with a squeeze of lemon."
-            ]
-        },
-        {
-            name: "Lamb Chops with White Bean Salad and Salsa Verde",
-            calories: 680, protein: 54, carbs: 28, fat: 38,
-            ingredients: [
-                { item: "Lamb loin chops", qty: "4 (400g total)", category: "Meat & Fish" },
-                { item: "Tinned white beans (cannellini)", qty: "400g tin", category: "Cooking" },
-                { item: "Cherry tomatoes", qty: "150g", category: "Vegetables" },
-                { item: "Cucumber", qty: "Half", category: "Vegetables" },
-                { item: "Flat-leaf parsley", qty: "Large bunch", category: "Fresh Herbs" },
-                { item: "Fresh mint", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Capers", qty: "1 tbsp", category: "Cooking" },
-                { item: "Lemon", qty: "1", category: "Vegetables" },
-                { item: "Garlic cloves", qty: "1", category: "Vegetables" },
-                { item: "Olive oil", qty: "4 tbsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Make salsa verde: blitz parsley, mint, capers, garlic, lemon juice, and 3 tbsp olive oil. Season.",
-                "Season lamb chops generously with salt and pepper.",
-                "Cook chops on a hot griddle or pan 3-4 minutes each side for medium. Rest 3 minutes.",
-                "Drain and rinse white beans. Halve tomatoes and dice cucumber. Toss together with remaining olive oil, lemon zest, salt and pepper.",
-                "Serve lamb chops alongside bean salad, spoon over salsa verde generously."
-            ]
-        },
-        {
-            name: "Chicken and Mango Noodle Salad",
-            calories: 620, protein: 50, carbs: 62, fat: 14,
-            ingredients: [
-                { item: "Chicken breasts", qty: "2 (400g)", category: "Meat & Fish" },
-                { item: "Rice vermicelli noodles", qty: "150g dry", category: "Cooking" },
-                { item: "Mango", qty: "1 ripe", category: "Vegetables" },
-                { item: "Red pepper", qty: "1", category: "Vegetables" },
-                { item: "Cucumber", qty: "Half", category: "Vegetables" },
-                { item: "Spring onions", qty: "4", category: "Vegetables" },
-                { item: "Fresh mint", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Fresh coriander", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Fish sauce", qty: "2 tbsp", category: "Cooking" },
-                { item: "Lime", qty: "2", category: "Vegetables" },
-                { item: "Chilli flakes", qty: "Half tsp", category: "Cooking" },
-                { item: "Sesame oil", qty: "1 tbsp", category: "Cooking" }
-            ],
-            method: [
-                "Season chicken with salt. Cook in pan over medium-high heat 6-7 minutes each side. Rest, then shred or slice.",
-                "Pour boiling water over vermicelli noodles, soak 3-4 minutes. Drain and rinse under cold water. Toss with sesame oil.",
-                "Peel and slice mango. Thinly slice red pepper, cucumber, and spring onions.",
-                "Make dressing: mix fish sauce, lime juice, and chilli flakes.",
-                "Combine noodles, mango, vegetables, and chicken in a large bowl. Toss with dressing.",
-                "Scatter over mint and coriander leaves to serve."
-            ]
-        },
-        {
-            name: "Beef Mince Tacos with Slaw",
-            calories: 649, protein: 56, carbs: 54, fat: 24,
-            ingredients: [
-                { item: "Beef mince (5% fat)", qty: "420g", category: "Meat & Fish" },
-                { item: "Small corn or flour tortillas", qty: "6", category: "Cooking" },
-                { item: "Red cabbage", qty: "150g", category: "Vegetables" },
-                { item: "Carrot", qty: "1 medium", category: "Vegetables" },
-                { item: "Radishes", qty: "6", category: "Vegetables" },
-                { item: "Fresh coriander", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Lime", qty: "2", category: "Vegetables" },
-                { item: "Greek yogurt", qty: "80g", category: "Dairy" },
-                { item: "Cumin", qty: "1 tsp", category: "Cooking" },
-                { item: "Smoked paprika", qty: "1 tsp", category: "Cooking" },
-                { item: "Garlic cloves", qty: "2", category: "Vegetables" },
-                { item: "Olive oil", qty: "1 tbsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Shred red cabbage and grate carrot. Thinly slice radishes. Toss together with lime juice, salt and a drizzle of olive oil. Set aside.",
-                "Heat oil in pan over high heat. Add beef mince, cook 5-6 minutes breaking up until browned.",
-                "Add crushed garlic, cumin, smoked paprika, salt and pepper. Cook 2 more minutes.",
-                "Mix yogurt with a squeeze of lime and a pinch of salt.",
-                "Warm tortillas in a dry pan or directly over a gas flame for 30 seconds.",
-                "Fill tortillas with beef mince, slaw, yogurt, and coriander leaves."
-            ]
-        },
-        {
-            name: "Grilled Chicken Thighs with Roasted Tomatoes and Butter Beans",
-            calories: 600, protein: 53, carbs: 30, fat: 28,
-            ingredients: [
-                { item: "Chicken thighs (bone-in, skin-on)", qty: "4 (520g total)", category: "Meat & Fish" },
-                { item: "Cherry tomatoes on the vine", qty: "300g", category: "Vegetables" },
-                { item: "Tinned butter beans", qty: "400g tin", category: "Cooking" },
-                { item: "Garlic cloves", qty: "4", category: "Vegetables" },
-                { item: "Fresh thyme", qty: "Few sprigs", category: "Fresh Herbs" },
-                { item: "Fresh basil", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Lemon", qty: "1", category: "Vegetables" },
-                { item: "Olive oil", qty: "2 tbsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Preheat oven to 210°C. Season chicken thighs generously with salt and pepper.",
-                "Heat an oven-safe pan over high heat. Place chicken skin-side down, cook 5 minutes until skin is crispy.",
-                "Flip chicken. Add halved garlic cloves, thyme, and cherry tomatoes on the vine to the pan.",
-                "Transfer to oven for 20 minutes until chicken is cooked through.",
-                "Remove chicken and tomatoes. Place pan back on hob over medium heat. Drain and add butter beans.",
-                "Squash a few tomatoes into the pan juices. Simmer beans 3 minutes. Add lemon juice and season.",
-                "Serve chicken over beans and tomatoes, scatter fresh basil."
-            ]
-        },
-        {
-            name: "Turkish-Style Lamb Flatbread (Lahmacun)",
-            calories: 680, protein: 53, carbs: 50, fat: 31,
-            ingredients: [
-                { item: "Lamb mince (lean)", qty: "400g", category: "Meat & Fish" },
-                { item: "Large flatbreads", qty: "2", category: "Cooking" },
-                { item: "Onion", qty: "1 medium", category: "Vegetables" },
-                { item: "Tomatoes", qty: "2 medium", category: "Vegetables" },
-                { item: "Red pepper", qty: "Half", category: "Vegetables" },
-                { item: "Garlic cloves", qty: "2", category: "Vegetables" },
-                { item: "Tomato puree", qty: "1 tbsp", category: "Cooking" },
-                { item: "Cumin", qty: "1 tsp", category: "Cooking" },
-                { item: "Paprika", qty: "1 tsp", category: "Cooking" },
-                { item: "Fresh flat-leaf parsley", qty: "Small bunch", category: "Fresh Herbs" },
-                { item: "Lemon", qty: "1", category: "Vegetables" },
-                { item: "Chilli flakes", qty: "Half tsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Preheat oven to 220°C.",
-                "Finely dice onion, tomatoes, and red pepper. Mix with lamb mince, crushed garlic, tomato puree, cumin, paprika, chilli flakes, salt and pepper.",
-                "Spread lamb mixture very thinly over flatbreads all the way to the edges.",
-                "Bake for 10-12 minutes until lamb is cooked and edges are crispy.",
-                "Scatter over fresh parsley and squeeze lemon over generously.",
-                "Roll or fold to eat, or slice into pieces."
-            ]
-        },
-        {
-            name: "Chicken Caesar Salad",
-            calories: 775, protein: 81, carbs: 40, fat: 31,
-            ingredients: [
-                { item: "Chicken breasts", qty: "2 (400g)", category: "Meat & Fish" },
-                { item: "Romaine lettuce", qty: "2 heads", category: "Vegetables" },
-                { item: "Parmesan", qty: "40g", category: "Dairy" },
-                { item: "Sourdough bread", qty: "2 thick slices", category: "Cooking" },
-                { item: "Greek yogurt", qty: "80g", category: "Dairy" },
-                { item: "Garlic cloves", qty: "2", category: "Vegetables" },
-                { item: "Lemon", qty: "1", category: "Vegetables" },
-                { item: "Olive oil", qty: "3 tbsp", category: "Cooking" },
-                { item: "Worcestershire sauce", qty: "1 tsp", category: "Cooking" },
-                { item: "Salt and pepper", qty: "To taste", category: "Cooking" }
-            ],
-            method: [
-                "Tear sourdough into chunks. Toss with 1 tbsp oil and a pinch of salt. Toast in a pan until golden. Set aside.",
-                "Season chicken with salt and pepper. Cook in 1 tbsp oil over medium-high heat for 6-7 minutes each side. Rest 5 minutes, then slice.",
-                "Make dressing: mix yogurt, crushed garlic, lemon juice, Worcestershire sauce, grated parmesan, and remaining olive oil. Season well.",
-                "Roughly chop romaine. Toss with dressing.",
-                "Plate lettuce, top with sliced chicken and croutons.",
-                "Shave over remaining parmesan and season with black pepper."
-            ]
+          name: "Grilled Za'atar Chicken with Herbed Farro & Feta Green Beans",
+          calories: 520,
+          protein: 46,
+          carbs: 48,
+          fat: 18,
+          fiber: 11,
+          fish: false,
+          ingredients: [
+            { item: "Boneless, skinless chicken breasts", qty: "340g (0.75lb)", category: "Meat & Fish" },
+            { item: "Za'atar", qty: "1 tbsp", category: "Cooking" },
+            { item: "Olive oil (chicken)", qty: "1.5 tsp", category: "Cooking" },
+            { item: "Garlic cloves, minced", qty: "2", category: "Vegetables" },
+            { item: "Lemon, juiced", qty: "0.5", category: "Vegetables" },
+            { item: "Salt", qty: "1/4 tsp", category: "Cooking" },
+            { item: "Black pepper", qty: "1/4 tsp", category: "Cooking" },
+            { item: "Farro, rinsed", qty: "150g (5/8 cup)", category: "Cooking" },
+            { item: "Low-sodium chicken broth", qty: "360ml (1.5 cups)", category: "Cooking" },
+            { item: "Small onion, finely diced", qty: "0.5", category: "Vegetables" },
+            { item: "Olive oil (farro)", qty: "0.5 tsp", category: "Cooking" },
+            { item: "Ground cumin", qty: "1/4 tsp", category: "Cooking" },
+            { item: "Salt (farro)", qty: "1/4 tsp", category: "Cooking" },
+            { item: "Green beans, trimmed", qty: "200g (7oz)", category: "Vegetables" },
+            { item: "Olive oil (green beans)", qty: "0.5 tsp", category: "Cooking" },
+            { item: "Feta, crumbled", qty: "30g (1oz)", category: "Dairy" },
+            { item: "Fresh dill, chopped", qty: "1 tbsp", category: "Fresh Herbs" },
+            { item: "Plain Greek yogurt", qty: "120g (1/4 cup x2)", category: "Dairy" },
+            { item: "Fresh dill, plus more to top", qty: "1 tbsp", category: "Fresh Herbs" },
+            { item: "Olive oil, to drizzle", qty: "0.5 tsp", category: "Cooking" },
+            { item: "Lemon halves, charred", qty: "1", category: "Vegetables" }
+          ],
+          method: [
+            "Marinate the chicken: toss the breasts with za'atar, olive oil, garlic, lemon juice, salt and pepper. Rest at least 20 minutes at room temperature, or overnight in the fridge.",
+            "Cook the farro: soften the onion in olive oil for 4 minutes, add cumin for 30 seconds, then stir in the rinsed farro. Add broth and salt, bring to a simmer, cover and cook 25-30 minutes until tender with a slight chew. Rest 5 minutes off the heat, then fluff.",
+            "Blanch the green beans: drop the beans into salted boiling water for 3 minutes until bright and just tender, then straight into ice water so they stay vivid green. Drain well.",
+            "Grill the chicken: heat a grill pan until very hot. Cook the breasts 6-7 minutes on the first side without moving them for clean grill marks, then 4-5 minutes on the second, until charred and cooked to 74C. Rest 5 minutes, then slice.",
+            "Dress the beans: toss the warm beans with olive oil, dill, feta and a pinch of salt so the feta softens slightly against them.",
+            "Stir the yogurt: fold the dill through the Greek yogurt with a pinch of salt.",
+            "Assemble: spread the farro across each plate, add the green beans and sliced chicken. Spoon the herbed yogurt alongside, drizzle with olive oil, top with extra dill, and finish with a charred lemon half to squeeze over."
+          ]
         }
-    ];
+];
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchBox = document.getElementById('searchBox');
-        if (searchBox) {
-            searchBox.addEventListener('input', function(e) {
-                const query = e.target.value.toLowerCase();
-                document.querySelectorAll('.meal-card').forEach(card => {
-                    const title = card.querySelector('.meal-title').textContent.toLowerCase();
-                    card.classList.toggle('hidden', query.length > 0 && !title.includes(query));
-                });
-            });
-        }
+function renderMacros(meal) {
+  return `<div class="macros">
+    <span class="macro-badge">${meal.calories} cal</span>
+    <span class="macro-badge protein">${meal.protein}g protein</span>
+    <span class="macro-badge carbs">${meal.carbs}g carbs</span>
+    <span class="macro-badge fat">${meal.fat}g fat</span>
+    <span class="macro-badge fiber">${meal.fiber}g fiber</span>
+  </div>`;
+}
+
+function renderCard(meal, index, showCheckbox, dayLabel) {
+  const fishClass = meal.fish ? "fish-tag" : "";
+  const fishBadge = meal.fish ? `<span class="fish-badge">SALMON</span>` : "";
+  const tipHtml = meal.tip ? `<div class="tip-box"><strong>Tip:</strong> ${meal.tip}</div>` : "";
+  return `<div class="meal-card ${fishClass}" data-index="${index}">
+    <div class="meal-header">
+      <div class="meal-header-left">
+        ${showCheckbox ? `<input type="checkbox" class="meal-checkbox" id="meal-${index}" checked>` : ""}
+        <div class="meal-title">${dayLabel ? dayLabel + ": " : ""}${meal.name}${fishBadge}</div>
+      </div>
+      ${renderMacros(meal)}
+    </div>
+    <div class="meal-content">
+      <div class="section-title">Ingredients (serves 2)</div>
+      <ul class="ingredients-list">
+        ${meal.ingredients.map(ing => `<li>${ing.qty} - ${ing.item}</li>`).join("")}
+      </ul>
+      <div class="section-title">Method</div>
+      <ol class="method-list">
+        ${meal.method.map(step => `<li>${step}</li>`).join("")}
+      </ol>
+      ${tipHtml}
+    </div>
+  </div>`;
+}
+
+function showAll() {
+  document.getElementById("searchBox").value = "";
+  currentMeals = mealDatabase;
+  document.getElementById("meals").innerHTML = mealDatabase.map((meal, i) => renderCard(meal, i, false, null)).join("");
+  document.getElementById("shopping").innerHTML = "";
+}
+
+function shuffleArray(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateWeek() {
+  const fishMeals = mealDatabase.filter(m => m.fish);
+  const nonFishMeals = mealDatabase.filter(m => !m.fish);
+  const shuffledNonFish = shuffleArray(nonFishMeals);
+  const includeFish = fishMeals.length > 0;
+  let pool = includeFish
+    ? [fishMeals[Math.floor(Math.random() * fishMeals.length)], ...shuffledNonFish]
+    : shuffledNonFish;
+  const selected = pool.slice(0, 5);
+  currentMeals = selected;
+  document.getElementById("meals").innerHTML = selected.map((meal, i) => renderCard(meal, i, true, `Day ${i + 1}`)).join("");
+  document.getElementById("shopping").innerHTML = generateShoppingList(selected);
+}
+
+function generateShoppingList(meals) {
+  const categories = { "Meat & Fish": [], "Vegetables": [], "Dairy": [], "Fresh Herbs": [], "Cooking": [] };
+  const itemMap = {};
+  meals.forEach(meal => {
+    meal.ingredients.forEach(ing => {
+      const key = ing.item.toLowerCase();
+      if (!itemMap[key]) {
+        itemMap[key] = { item: ing.item, qty: ing.qty, category: ing.category };
+      } else {
+        itemMap[key].qty = itemMap[key].qty + ", " + ing.qty;
+      }
     });
-
-    function renderMacros(meal) {
-        return `<div class="macros">
-            <span class="macro-badge">${meal.calories} cal</span>
-            <span class="macro-badge protein">${meal.protein}g protein</span>
-            <span class="macro-badge carbs">${meal.carbs}g carbs</span>
-            <span class="macro-badge fat">${meal.fat}g fat</span>
-        </div>`;
+  });
+  Object.values(itemMap).forEach(ing => {
+    if (categories[ing.category]) categories[ing.category].push(`${ing.item} (${ing.qty})`);
+  });
+  let html = `<div class="shopping-list"><h2>Shopping List</h2>`;
+  Object.entries(categories).forEach(([cat, items]) => {
+    if (items.length > 0) {
+      html += `<div class="shopping-category"><div class="category-name">${cat}</div><ul class="shopping-items">${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`;
     }
+  });
+  html += `</div>`;
+  return html;
+}
 
-    function renderCard(meal, index, showCheckbox, dayLabel) {
-        const highCalClass = meal.highCal ? ' high-cal' : '';
-        const highCalTag = meal.highCal ? '<span class="high-cal-tag">HIGH CAL</span>' : '';
-        return `<div class="meal-card${highCalClass}" data-index="${index}">
-            <div class="meal-header">
-                <div class="meal-header-left">
-                    ${showCheckbox ? `<input type="checkbox" class="meal-checkbox" id="meal-${index}" checked>` : ''}
-                    <div class="meal-title">${dayLabel ? dayLabel + ': ' : ''}${meal.name}${highCalTag}</div>
-                </div>
-                ${renderMacros(meal)}
-            </div>
-            <div class="meal-content">
-                <div class="section-title">Ingredients (serves 2):</div>
-                <ul class="ingredients-list">
-                    ${meal.ingredients.map(ing => `<li>${ing.qty} ${ing.item}</li>`).join('')}
-                </ul>
-                <div class="section-title">Method:</div>
-                <ol class="method-list">
-                    ${meal.method.map(step => `<li>${step}</li>`).join('')}
-                </ol>
-            </div>
-        </div>`;
+document.addEventListener("DOMContentLoaded", function() {
+  const searchBox = document.getElementById("searchBox");
+  if (searchBox) {
+    searchBox.addEventListener("input", function(e) {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll(".meal-card").forEach(card => {
+        const title = card.querySelector(".meal-title").textContent.toLowerCase();
+        card.classList.toggle("hidden", query.length > 0 && !title.includes(query));
+      });
+    });
+  }
+  generateWeek();
+});
+
+async function createRecipeImage(meal, dayLabel) {
+  const d = document.createElement("div");
+  d.style.cssText = "width:800px;padding:30px;background:#fff;font-family:-apple-system,sans-serif;position:absolute;left:-9999px";
+  d.innerHTML = `<div style="margin-bottom:20px;padding-bottom:15px;border-bottom:3px solid #27ae60">
+    <h2 style="color:#2c3e50;font-size:22px;margin-bottom:10px">${dayLabel ? dayLabel + ": " : ""}${meal.name}</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span style="background:#27ae60;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600">${meal.calories} cal</span>
+      <span style="background:#e74c3c;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600">${meal.protein}g protein</span>
+      <span style="background:#f39c12;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600">${meal.carbs}g carbs</span>
+      <span style="background:#7f8c8d;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600">${meal.fat}g fat</span>
+    </div>
+  </div>
+  <div style="margin-bottom:20px">
+    <h3 style="color:#34495e;font-size:17px;margin-bottom:10px">Ingredients (serves 2)</h3>
+    <ul style="list-style:none;padding:0;color:#555;line-height:1.8">${meal.ingredients.map(i => `<li>${i.qty} - ${i.item}</li>`).join("")}</ul>
+  </div>
+  <div>
+    <h3 style="color:#34495e;font-size:17px;margin-bottom:10px">Method</h3>
+    <ol style="padding-left:20px;color:#555;line-height:1.8">${meal.method.map(s => `<li style="margin-bottom:8px">${s}</li>`).join("")}</ol>
+  </div>`;
+  document.body.appendChild(d);
+  const canvas = await html2canvas(d, { backgroundColor: "#ffffff", scale: 2 });
+  document.body.removeChild(d);
+  return canvas;
+}
+
+function downloadCanvas(canvas, filename) {
+  canvas.toBlob(function(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.download = filename;
+    a.href = url;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
+async function downloadSelected() {
+  const boxes = document.querySelectorAll(".meal-checkbox:checked");
+  if (boxes.length === 0) { alert("Please select at least one meal!"); return; }
+  for (let box of boxes) {
+    const i = parseInt(box.id.split("-")[1]);
+    const meal = currentMeals[i];
+    const canvas = await createRecipeImage(meal, `Day ${i + 1}`);
+    downloadCanvas(canvas, `day-${i + 1}-${meal.name.replace(/\s+/g, "-").toLowerCase()}.png`);
+    await new Promise(r => setTimeout(r, 500));
+  }
+}
+
+async function downloadGroceryList() {
+  if (currentMeals.length === 0) { alert("Please generate a week first!"); return; }
+  const categories = { "Meat & Fish": [], "Vegetables": [], "Dairy": [], "Fresh Herbs": [], "Cooking": [] };
+  const itemMap = {};
+  currentMeals.forEach(meal => {
+    meal.ingredients.forEach(ing => {
+      const key = ing.item.toLowerCase();
+      if (!itemMap[key]) {
+        itemMap[key] = { item: ing.item, qty: ing.qty, category: ing.category };
+      } else {
+        itemMap[key].qty = itemMap[key].qty + ", " + ing.qty;
+      }
+    });
+  });
+  Object.values(itemMap).forEach(ing => {
+    if (categories[ing.category]) categories[ing.category].push(`${ing.item} (${ing.qty})`);
+  });
+  const d = document.createElement("div");
+  d.style.cssText = "width:800px;padding:30px;background:#fff9e6;font-family:-apple-system,sans-serif;position:absolute;left:-9999px;border:3px solid #f39c12;border-radius:8px";
+  let html = `<h2 style="color:#d68910;font-size:24px;margin-bottom:20px">Shopping List</h2>`;
+  Object.entries(categories).forEach(([cat, items]) => {
+    if (items.length > 0) {
+      html += `<div style="margin-bottom:18px"><h3 style="color:#34495e;font-size:16px;margin-bottom:8px">${cat}</h3><ul style="list-style:none;padding-left:15px;color:#555;line-height:1.7">${items.map(i => `<li>${i}</li>`).join("")}</ul></div>`;
     }
-
-    function showAll() {
-        document.getElementById('searchBox').value = '';
-        currentMeals = mealDatabase;
-        document.getElementById('meals').innerHTML = mealDatabase.map((meal, i) => renderCard(meal, i, false, null)).join('');
-        document.getElementById('shopping').innerHTML = '';
-    }
-
-    function shuffleArray(array) {
-        const a = [...array];
-        for (let i = a.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [a[i], a[j]] = [a[j], a[i]];
-        }
-        return a;
-    }
-
-    function generateWeek() {
-        // Ensure max 1 salmon meal per week
-        const salmonMeals = mealDatabase.filter(m => m.name.toLowerCase().includes('salmon'));
-        const nonSalmonMeals = mealDatabase.filter(m => !m.name.toLowerCase().includes('salmon'));
-        const shuffledNonSalmon = shuffleArray(nonSalmonMeals);
-        const includeSalmon = Math.random() > 0.5 && salmonMeals.length > 0;
-        let pool = includeSalmon
-            ? [salmonMeals[Math.floor(Math.random() * salmonMeals.length)], ...shuffledNonSalmon]
-            : shuffledNonSalmon;
-        const selected = pool.slice(0, 4);
-        currentMeals = selected;
-        document.getElementById('meals').innerHTML = selected.map((meal, i) => renderCard(meal, i, true, `Day ${i + 1}`)).join('');
-        document.getElementById('shopping').innerHTML = generateShoppingList(selected);
-    }
-
-    function generateShoppingList(meals) {
-        const categories = { "Meat & Fish": [], "Vegetables": [], "Dairy": [], "Fresh Herbs": [], "Cooking": [] };
-        const itemMap = {};
-        meals.forEach(meal => {
-            meal.ingredients.forEach(ing => {
-                const key = ing.item.toLowerCase();
-                if (!itemMap[key]) { itemMap[key] = { item: ing.item, qty: ing.qty, category: ing.category }; }
-                else { itemMap[key].qty += ', ' + ing.qty; }
-            });
-        });
-        Object.values(itemMap).forEach(ing => { if (categories[ing.category]) categories[ing.category].push(`${ing.item} (${ing.qty})`); });
-        let html = '<div class="shopping-list"><h2>Waitrose Shopping List</h2>';
-        Object.entries(categories).forEach(([cat, items]) => {
-            if (items.length > 0) {
-                html += `<div class="shopping-category"><div class="category-name">${cat}</div>
-                    <ul class="shopping-items">${items.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
-            }
-        });
-        return html + '</div>';
-    }
-
-    async function createRecipeImage(meal, dayLabel) {
-        const d = document.createElement('div');
-        d.style.cssText = 'width:800px;padding:30px;background:#fff;font-family:-apple-system,sans-serif;position:absolute;left:-9999px;';
-        d.innerHTML = `
-            <div style="margin-bottom:20px;padding-bottom:15px;border-bottom:3px solid #27ae60;">
-                <h2 style="color:#2c3e50;font-size:22px;margin-bottom:10px;">${dayLabel ? dayLabel + ': ' : ''}${meal.name}</h2>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <span style="background:#27ae60;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600;">${meal.calories} cal</span>
-                    <span style="background:#e74c3c;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600;">${meal.protein}g protein</span>
-                    <span style="background:#f39c12;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600;">${meal.carbs}g carbs</span>
-                    <span style="background:#7f8c8d;color:white;padding:4px 10px;border-radius:4px;font-size:13px;font-weight:600;">${meal.fat}g fat</span>
-                </div>
-            </div>
-            <div style="margin-bottom:20px;">
-                <h3 style="color:#34495e;font-size:17px;margin-bottom:10px;">Ingredients (serves 2):</h3>
-                <ul style="list-style:none;padding:0;color:#555;line-height:1.8;">${meal.ingredients.map(i => `<li>• ${i.qty} ${i.item}</li>`).join('')}</ul>
-            </div>
-            <div>
-                <h3 style="color:#34495e;font-size:17px;margin-bottom:10px;">Method:</h3>
-                <ol style="padding-left:20px;color:#555;line-height:1.8;">${meal.method.map(s => `<li style="margin-bottom:8px;">${s}</li>`).join('')}</ol>
-            </div>`;
-        document.body.appendChild(d);
-        const canvas = await html2canvas(d, { backgroundColor: '#ffffff', scale: 2 });
-        document.body.removeChild(d);
-        return canvas;
-    }
-
-    function downloadCanvas(canvas, filename) {
-        canvas.toBlob(blob => {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.download = filename; a.href = url; a.click();
-            URL.revokeObjectURL(url);
-        });
-    }
-
-    async function downloadSelected() {
-        const boxes = document.querySelectorAll('.meal-checkbox:checked');
-        if (boxes.length === 0) { alert('Please select at least one meal!'); return; }
-        for (let box of boxes) {
-            const i = parseInt(box.id.split('-')[1]);
-            const meal = currentMeals[i];
-            const canvas = await createRecipeImage(meal, `Day ${i + 1}`);
-            downloadCanvas(canvas, `day-${i + 1}-${meal.name.replace(/\s+/g, '-').toLowerCase()}.png`);
-            await new Promise(r => setTimeout(r, 500));
-        }
-    }
-
-    async function downloadGroceryList() {
-        if (currentMeals.length === 0) { alert('Please generate a week first!'); return; }
-        const categories = { "Meat & Fish": [], "Vegetables": [], "Dairy": [], "Fresh Herbs": [], "Cooking": [] };
-        const itemMap = {};
-        currentMeals.forEach(meal => {
-            meal.ingredients.forEach(ing => {
-                const key = ing.item.toLowerCase();
-                if (!itemMap[key]) { itemMap[key] = { item: ing.item, qty: ing.qty, category: ing.category }; }
-                else { itemMap[key].qty += ', ' + ing.qty; }
-            });
-        });
-        Object.values(itemMap).forEach(ing => { if (categories[ing.category]) categories[ing.category].push(`${ing.item} (${ing.qty})`); });
-        const d = document.createElement('div');
-        d.style.cssText = 'width:800px;padding:30px;background:#fff9e6;font-family:-apple-system,sans-serif;position:absolute;left:-9999px;border:3px solid #f39c12;border-radius:8px;';
-        let html = `<h2 style="color:#d68910;font-size:24px;margin-bottom:20px;">Waitrose Shopping List</h2>`;
-        Object.entries(categories).forEach(([cat, items]) => {
-            if (items.length > 0) {
-                html += `<div style="margin-bottom:18px;"><h3 style="color:#34495e;font-size:16px;margin-bottom:8px;">${cat}</h3>
-                    <ul style="list-style:none;padding-left:15px;color:#555;line-height:1.7;">${items.map(i => `<li>• ${i}</li>`).join('')}</ul></div>`;
-            }
-        });
-        d.innerHTML = html;
-        document.body.appendChild(d);
-        const canvas = await html2canvas(d, { backgroundColor: '#fff9e6', scale: 2 });
-        document.body.removeChild(d);
-        downloadCanvas(canvas, 'waitrose-shopping-list.png');
-    }
-
-    generateWeek();
+  });
+  d.innerHTML = html;
+  document.body.appendChild(d);
+  const canvas = await html2canvas(d, { backgroundColor: "#fff9e6", scale: 2 });
+  document.body.removeChild(d);
+  downloadCanvas(canvas, "shopping-list.png");
+}
 </script>
-```
-
 </body>
 </html>

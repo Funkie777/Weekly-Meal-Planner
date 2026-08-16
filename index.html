@@ -55,11 +55,11 @@
 <body>
 <div class="container">
   <h1>Weekly Dinner Planner</h1>
-  <p class="subtitle">10 high-protein meals | Source: Instagram @healthyeatingfeed, macros audited & rebalanced | All macros per serving (serves 2) | Verified max 800 kcal, ~45-55g protein | Fish limited to salmon, max 1 per week</p>
-  <input type="text" class="search-box" id="searchBox" placeholder="Search meals by name e.g., chicken, salmon, beef...">
+  <p class="subtitle">11 high-protein meals | Source: Instagram @healthyeatingfeed, macros audited & rebalanced | All macros per serving (serves 2) | Verified max 800 kcal, ~44-59g protein | Fish limited to salmon, max 1 per week</p>
+  <input type="text" class="search-box" id="searchBox" placeholder="Search meals by name e.g., chicken, salmon, beef, burger...">
   <div class="controls">
     <button onclick="generateWeek()">Generate New Week</button>
-    <button onclick="showAll()">Show All 10 Meals</button>
+    <button onclick="showAll()">Show All 11 Meals</button>
     <button class="print-btn" onclick="window.print()">Print</button>
     <button class="download-btn" onclick="downloadSelected()">Download Selected</button>
     <button class="download-btn" onclick="downloadGroceryList()">Download Grocery List</button>
@@ -398,6 +398,38 @@ const mealDatabase = [
             "Toss the drained green beans with the 1 tsp olive oil, the chopped dill, crumbled feta and a pinch of salt while they're still warm, so the feta softens slightly against them.",
             "Stir the remaining chopped dill through the Greek yogurt with a pinch of salt to make the herbed yogurt.",
             "To serve, divide the farro between two plates, add the green beans and sliced chicken alongside. Spoon the herbed yogurt next to the chicken, drizzle everything with a little olive oil, top with extra dill, and serve with a charred lemon half (cut-side down on the hot grill pan for 2 minutes) to squeeze over."
+          ]
+        },
+        {
+          name: "Smash Burger Bowls with Special Sauce",
+          calories: 755,
+          protein: 59,
+          carbs: 35,
+          fat: 44,
+          fiber: 6,
+          fish: false,
+          ingredients: [
+            { item: "Lean ground beef (93/7)", qty: "440g (1lb)", category: "Meat & Fish" },
+            { item: "Lettuce, chopped", qty: "200g (4 cups)", category: "Vegetables" },
+            { item: "Cherry tomatoes, halved", qty: "150g (1 cup)", category: "Vegetables" },
+            { item: "Red onion, diced", qty: "Half", category: "Vegetables" },
+            { item: "Cheddar, shredded", qty: "40g", category: "Dairy" },
+            { item: "Avocado, sliced", qty: "1 small", category: "Vegetables" },
+            { item: "Crinkle-cut fries", qty: "140g (frozen)", category: "Cooking" },
+            { item: "Mayo", qty: "4 tsp", category: "Cooking" },
+            { item: "Ketchup", qty: "2 tbsp", category: "Cooking" },
+            { item: "Mustard", qty: "2 tsp", category: "Cooking" },
+            { item: "Pickle relish", qty: "2 tsp", category: "Cooking" },
+            { item: "Salt and black pepper", qty: "To taste", category: "Cooking" }
+          ],
+          method: [
+            "Preheat the oven according to the fries packet instructions. Spread the crinkle-cut fries in a single layer on a baking tray (don't overcrowd them, or they'll steam instead of crisp) and bake until deep golden and crunchy - they need to hold their texture under the sauce and toppings, so don't pull them early.",
+            "While the fries cook, season the ground beef generously with salt and pepper. Heat a large frying pan or griddle over high heat until very hot. Add the beef in one flat layer and press down firmly with a spatula for 2-3 minutes to get deep brown, crispy edges - this is the 'smash' technique, and it's where most of the flavour comes from.",
+            "Once well browned underneath, break the beef up into crumbles with the spatula and continue cooking for 3-4 minutes until no pink remains. Tip into a sieve or onto kitchen paper for a minute to drain off any excess fat.",
+            "While the beef cooks, make the special sauce: stir the mayo, ketchup, mustard and pickle relish together in a small bowl until smooth. Taste and adjust - it should be tangy with a little sweetness.",
+            "Halve the cherry tomatoes, dice the red onion, and slice the avocado just before serving so it doesn't brown.",
+            "To build the bowls, divide the chopped lettuce between two bowls as the base. Arrange the beef, cherry tomatoes, red onion, shredded cheddar, avocado and crispy fries in separate sections on top so everything stays visually distinct and nothing goes soggy.",
+            "Drizzle the special sauce generously over each bowl just before serving, with extra on the side for dipping the fries."
           ]
         }
 ];
